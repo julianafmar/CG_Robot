@@ -13,7 +13,6 @@ function createScene(){
     'use strict';
 
     scene = new THREE.Scene();
-    scene.add(new THREE.AxisHelper(10));
     scene.background = new THREE.Color(0xf0ead6);
 
     createRobot();
@@ -26,40 +25,36 @@ function createCamera(){
     'use strict';
 
     // Câmera frontal (projeção ortogonal)
-    const cameraFrontal = new THREE.OrthographicCamera(-width/2, width/2, height/2, -height/2, 1, 1000);
+    const cameraFrontal = new THREE.OrthographicCamera(-12*(window.innerWidth/window.innerHeight), 12*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
     cameraFrontal.position.set(0, 0, 500);
     cameraFrontal.lookAt(scene.position);
     cameras.push(cameraFrontal);
 
     // Câmera lateral (projeção ortogonal)
-    const cameraLateral = new THREE.OrthographicCamera(-width/2, width/2, height/2, -height/2, 1, 1000);
+    const cameraLateral = new THREE.OrthographicCamera(-12*(window.innerWidth/window.innerHeight), 12*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
     cameraLateral.position.set(-500, 0, 0);
     cameraLateral.lookAt(scene.position);
     cameras.push(cameraLateral);
 
     // Câmera de topo (projeção ortogonal)
-    const cameraTopo = new THREE.OrthographicCamera(-width/2, width/2, height/2, -height/2, 1, 1000);
+    const cameraTopo = new THREE.OrthographicCamera(-12*(window.innerWidth/window.innerHeight), 12*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
     cameraTopo.position.set(0, 500, 0);
     cameraTopo.lookAt(scene.position);
     cameras.push(cameraTopo);
 
     // Câmera isométrica (projeção ortogonal)
-    const cameraIsometrica = new THREE.OrthographicCamera(-width/2, width/2, height/2, -height/2, 1, 1000);
+    const cameraIsometrica = new THREE.OrthographicCamera(-12*(window.innerWidth/window.innerHeight), 12*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
     cameraIsometrica.position.set(500, 500, 500);
     cameraIsometrica.lookAt(scene.position);
     cameras.push(cameraIsometrica);
 
     // Câmera isométrica (projeção perspectiva)
-    const cameraPerspectiva = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
-    cameraPerspectiva.position.set(500, 500, 500);
+    const cameraPerspectiva = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 1000);
+    cameraPerspectiva.position.set(20, 20, 20);
     cameraPerspectiva.lookAt(scene.position);
     cameras.push(cameraPerspectiva);
 
 }
-
-/////////////////////
-/* CREATE LIGHT(S) */
-/////////////////////
 
 ////////////////////////
 /* CREATE OBJECT3D(S) */
@@ -68,10 +63,11 @@ function createRobot(){
     'use strict';
 
     var robot = new THREE.Object3D();
-
     material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
 
     createHead(robot, 0, 0, 0);
+    createBody(robot, 0, -1.5, 0);
+    createArmR(robot, -3, -1.5, 0);
 
     scene.add(robot);
 
@@ -79,13 +75,114 @@ function createRobot(){
 
 function createHead(obj, x, y, z){
     'use strict';
+    var head = new THREE.Object3D();
 
-    geometry = new THREE.CubeGeometry(2, 6, 2);
+    geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(x, y - 3, z);
+    mesh.position.set(x, y, z);
+    head.add(mesh);
+
+    createAntenaR(head, 0.1, 0.7, 0);
+    createAntenaL(head, 0.1, 0.7, 0);
+    createEyeL(head, 0.2);
+    createEyeR(head, 0.2);
+    head.position.y += 1.5/2;
+
+    obj.add(head);
+}
+
+function createAntenaR(obj, r, h, z){
+    'use strict';
+    geometry = new THREE.ConeGeometry(r, h, 32);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(-1.5/2.2, h/2 + 1.5/2, z);
+    obj.add(mesh);
+}
+
+function createAntenaL(obj, r, h, z){
+    'use strict';
+    geometry = new THREE.ConeGeometry(r, h, 32);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(1.5/2.2, h/2 + 1.5/2, z);
+    obj.add(mesh);
+}
+
+function createEyeR(obj, r) {
+    'use strict';
+    geometry = new THREE.SphereGeometry(r, 32, 16);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(-1.5/4, 1.5/4, 1.5/2);
+    obj.add(mesh);
+}
+
+function createEyeL(obj, r) {
+    'use strict';
+    geometry = new THREE.SphereGeometry(r, 32, 16);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(1.5/4, 1.5/4, 1.5/2);
+    obj.add(mesh);
+}
+
+function createBody(obj, x, y, z){
+    'use strict';
+    geometry = new THREE.BoxGeometry(6, 3, 5.5);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(x, y, z);
     obj.add(mesh);
 
 }
+
+function createArmR(obj, y, z){
+    'use strict';
+
+    var arm = new THREE.Object3D();
+
+    geometry = new THREE.BoxGeometry(1.5, 3, 1.5);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(-1.5/2 - 3, y + 1.5, z - 5.5/2 + 1.5*1.5); //z é do tronco
+    arm.add(mesh);
+    
+    createForearmR(arm, y, z);
+
+    obj.add(arm);
+}
+
+function createForearmR(obj, y, z){
+    'use strict';
+
+    geometry = new THREE.BoxGeometry(1, 1, 5.5);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(-1.5/2 - 3, y - 0.5, z + 1.5/2);
+    obj.add(mesh);
+}
+
+function createArmL(obj, x, y, z){
+    'use strict';
+
+    var arm = new THREE.Object3D();
+
+    geometry = new THREE.BoxGeometry(1.5, 3, 1.5);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(1.5/2 + 3, y, z - 5.5/2 + 1.5/2); //z é do tronco
+    arm.add(mesh);
+
+    
+    createForearmR(arm, 0, -3/2, 0);
+
+    obj.add(arm);
+
+}
+
+function createLegR(obj, x, y, z){
+    'use strict';
+
+}
+
+function createLegL(obj, x, y, z){
+    'use strict';
+
+}
+
 
 //////////////////////
 /* CHECK COLLISIONS */
