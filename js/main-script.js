@@ -75,84 +75,95 @@ function createRobot(){
 
 function createHead(obj, x, y, z){
     'use strict';
-    var head = new THREE.Object3D();
+    var edgeLength = 1.5
 
-    geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+    var head = new THREE.Object3D();
+    geometry = new THREE.BoxGeometry(edgeLength, edgeLength, edgeLength);
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(x, y, z);
     head.add(mesh);
 
-    createAntenaR(head, 0.1, 0.7, 0);
-    createAntenaL(head, 0.1, 0.7, 0);
-    createEyeL(head, 0.2);
-    createEyeR(head, 0.2);
-    head.position.y += 1.5/2;
+    createAntenaR(head, 0.1, 0.7, 0, edgeLength);
+    createAntenaL(head, 0.1, 0.7, 0, edgeLength);
+    createEyeL(head, 0.2, edgeLength);
+    createEyeR(head, 0.2, edgeLength);
 
+    head.position.y += edgeLength/2;
+    
     obj.add(head);
 }
 
-function createAntenaR(obj, r, h, z){
+function createAntenaR(obj, r, h, z, edgeLength){
     'use strict';
     geometry = new THREE.ConeGeometry(r, h, 32);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-1.5/2.2, h/2 + 1.5/2, z);
+    mesh.position.set(-edgeLength/3.5, h/2 + edgeLength/2, z);
     obj.add(mesh);
 }
 
-function createAntenaL(obj, r, h, z){
+function createAntenaL(obj, r, h, z, edgeLength){
     'use strict';
     geometry = new THREE.ConeGeometry(r, h, 32);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(1.5/2.2, h/2 + 1.5/2, z);
+    mesh.position.set(edgeLength/3.5, h/2 + edgeLength/2, z);
     obj.add(mesh);
 }
 
-function createEyeR(obj, r) {
+function createEyeR(obj, r, edgeLength) {
     'use strict';
     geometry = new THREE.SphereGeometry(r, 32, 16);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-1.5/4, 1.5/4, 1.5/2);
+    mesh.position.set(-edgeLength/4, edgeLength/4, edgeLength/2);
     obj.add(mesh);
 }
 
-function createEyeL(obj, r) {
+function createEyeL(obj, r, edgeLength) {
     'use strict';
     geometry = new THREE.SphereGeometry(r, 32, 16);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(1.5/4, 1.5/4, 1.5/2);
+    mesh.position.set(edgeLength/4, edgeLength/4, edgeLength/2);
     obj.add(mesh);
 }
 
 function createBody(obj, x, y, z){
     'use strict';
-    geometry = new THREE.BoxGeometry(6, 3, 5.5);
+    var bodyLength = 6;
+    var bodyWidth = 5.5;
+    var bodyHeight = 3
+
+    geometry = new THREE.BoxGeometry(bodyLength, bodyHeight, bodyWidth);
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(x, y, z);
     obj.add(mesh);
-
 }
 
-function createArmR(obj, y, z){
+function createArmR(obj, x, y, z){
     'use strict';
+    var armLength = 1.5;
+    var armWidth = 1.5;
+    var armHeight = 3;
+
+    geometry = new THREE.BoxGeometry(armLength, armHeight, armWidth);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(x - armLength/2, y, z - (4-5.5/2) - armWidth/2);
 
     var arm = new THREE.Object3D();
-
-    geometry = new THREE.BoxGeometry(1.5, 3, 1.5);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-1.5/2 - 3, y + 1.5, z - 5.5/2 + 1.5*1.5); //z é do tronco
     arm.add(mesh);
     
-    createForearmR(arm, y, z);
+    createForearmR(arm, x, y - armHeight/2, z, armLength);
 
     obj.add(arm);
 }
 
-function createForearmR(obj, y, z){
+function createForearmR(obj, x, y, z, armLength){
     'use strict';
+    var foreArmLength = 1;
+    var foreArmWidth = 5.5;
+    var foreArmHeight = 1;
 
-    geometry = new THREE.BoxGeometry(1, 1, 5.5);
+    geometry = new THREE.BoxGeometry(foreArmLength, foreArmHeight, foreArmWidth);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-1.5/2 - 3, y - 0.5, z + 1.5/2);
+    mesh.position.set(x - armLength/2, y - foreArmHeight/2, z);
     obj.add(mesh);
 }
 
