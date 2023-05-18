@@ -5,6 +5,10 @@ var scene, renderer;
 var geometry, material, mesh;
 var cameras = [];
 var activeCamera = 0;
+var materials = [];
+var wf = false;
+var robot;
+var components = [];
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -13,8 +17,8 @@ function createScene(){
     'use strict';
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf0ead6);
-
+    scene.background = new THREE.Color(0xFEEAC2);
+    
     createRobot();
 }
 
@@ -57,17 +61,49 @@ function createCamera(){
 }
 
 ////////////////////////
+/* CREATE MATERIALS */
+////////////////////////
+function createMaterials(){
+    // dark blue - 0
+    materials.push(new THREE.MeshBasicMaterial({ color: 0x3300CC, wireframe: wf }));
+
+    // light blue - 1
+    materials.push(new THREE.MeshBasicMaterial({ color: 0x4F80FA, wireframe: wf }));
+
+    // white - 2
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xFCFCFC, wireframe: wf }));
+
+    // grey - 3
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xCCCCCC, wireframe: wf }));
+
+    // dark grey - 4
+    materials.push(new THREE.MeshBasicMaterial({ color: 0x9E9C9C, wireframe: wf }));
+
+    // black - 5
+    materials.push(new THREE.MeshBasicMaterial({ color: 0x2F2F2F, wireframe: wf }));
+
+    // red - 6
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xCC0000, wireframe: wf }));
+
+    // light red - 7
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xF96342, wireframe: wf }));
+}
+
+////////////////////////
 /* CREATE OBJECT3D(S) */
 ////////////////////////
 function createRobot(){
     'use strict';
 
-    var robot = new THREE.Object3D();
-    material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+    robot = new THREE.Object3D();
+    
+    material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: wf });
 
-    createHead(robot, 0, 0, 0);
-    createBody(robot, 0, -1.5, 0);
-    createArmR(robot, -3, -1.5, 0);
+    createBody(robot, 0, 0, 0);
+    createHead(robot, 0, 1.5, 0);
+    createArmR(robot, -3, 0, 0);
+    createArmL(robot, 3, 0, 0);
+    createWaist(robot, 0, -1.5, 0);
 
     scene.add(robot);
 
@@ -79,61 +115,71 @@ function createHead(obj, x, y, z){
 
     var head = new THREE.Object3D();
     geometry = new THREE.BoxGeometry(edgeLength, edgeLength, edgeLength);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials[0]);
+    console.log(materials[0]);
     mesh.position.set(x, y, z);
     head.add(mesh);
 
-    createAntenaR(head, 0.1, 0.7, 0, edgeLength);
-    createAntenaL(head, 0.1, 0.7, 0, edgeLength);
-    createEyeL(head, 0.2, edgeLength);
-    createEyeR(head, 0.2, edgeLength);
-
+    createAntenaR(head, 0.1, 0.7, 0, y, edgeLength);
+    createAntenaL(head, 0.1, 0.7, 0, y, edgeLength);
+    createEyeL(head, 0.2, y, edgeLength);
+    createEyeR(head, 0.2, y, edgeLength);
     head.position.y += edgeLength/2;
     
     obj.add(head);
+    components.push(head);
 }
 
-function createAntenaR(obj, r, h, z, edgeLength){
+function createAntenaR(obj, r, h, z, y, edgeLength){
     'use strict';
     geometry = new THREE.ConeGeometry(r, h, 32);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-edgeLength/3.5, h/2 + edgeLength/2, z);
+    mesh = new THREE.Mesh(geometry, materials[4]);
+    mesh.position.set(-edgeLength/3.5, y + h/2 + edgeLength/2, z);
     obj.add(mesh);
 }
 
-function createAntenaL(obj, r, h, z, edgeLength){
+function createAntenaL(obj, r, h, z, y, edgeLength){
     'use strict';
     geometry = new THREE.ConeGeometry(r, h, 32);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(edgeLength/3.5, h/2 + edgeLength/2, z);
+    mesh = new THREE.Mesh(geometry, materials[4]);
+    mesh.position.set(edgeLength/3.5, y + h/2 + edgeLength/2, z);
     obj.add(mesh);
 }
 
-function createEyeR(obj, r, edgeLength) {
+function createEyeR(obj, r, y, edgeLength) {
     'use strict';
     geometry = new THREE.SphereGeometry(r, 32, 16);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(-edgeLength/4, edgeLength/4, edgeLength/2);
+    mesh = new THREE.Mesh(geometry, materials[2]);
+    mesh.position.set(-edgeLength/4, y + edgeLength/4, edgeLength/2);
     obj.add(mesh);
 }
 
-function createEyeL(obj, r, edgeLength) {
+function createEyeL(obj, r, y, edgeLength) {
     'use strict';
     geometry = new THREE.SphereGeometry(r, 32, 16);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(edgeLength/4, edgeLength/4, edgeLength/2);
+    mesh = new THREE.Mesh(geometry, materials[2]);
+    mesh.position.set(edgeLength/4, y + edgeLength/4, edgeLength/2);
     obj.add(mesh);
 }
 
 function createBody(obj, x, y, z){
     'use strict';
     var bodyLength = 6;
-    var bodyWidth = 5.5;
-    var bodyHeight = 3
+    var bodyWidth = 4;
+    var bodyHeight = 3;
 
-    geometry = new THREE.BoxGeometry(bodyLength, bodyHeight, bodyWidth);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(x, y, z);
+    var backLength = 3;
+    var backWidth = 1.5;
+    var backHeight = 3;
+
+    var back = new THREE.BoxGeometry(backLength, backHeight, backWidth);
+    mesh = new THREE.Mesh(back, materials[6]);
+    mesh.position.set(x, y, z - (bodyWidth-(bodyWidth + backWidth)/2) - backWidth/2);
+    obj.add(mesh);
+
+    var body = new THREE.BoxGeometry(bodyLength, bodyHeight, bodyWidth);
+    mesh = new THREE.Mesh(body, materials[6]);
+    mesh.position.set(x, y, z + backWidth/2);
     obj.add(mesh);
 }
 
@@ -168,24 +214,49 @@ function createForearmR(obj, x, y, z, armLength){
 }
 
 function createArmL(obj, x, y, z){
-    'use strict';
+    var armLength = 1.5;
+    var armWidth = 1.5;
+    var armHeight = 3;
+
+    geometry = new THREE.BoxGeometry(armLength, armHeight, armWidth);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(x + armLength/2, y, z - (4-5.5/2) - armWidth/2);
 
     var arm = new THREE.Object3D();
-
-    geometry = new THREE.BoxGeometry(1.5, 3, 1.5);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(1.5/2 + 3, y, z - 5.5/2 + 1.5/2); //z é do tronco
     arm.add(mesh);
-
     
-    createForearmR(arm, 0, -3/2, 0);
+    createForearmL(arm, x, y - armHeight/2, z, armLength);
 
     obj.add(arm);
+}
 
+function createForearmL(obj, x, y, z, armLength){
+    'use strict';
+    var foreArmLength = 1;
+    var foreArmWidth = 5.5;
+    var foreArmHeight = 1;
+
+    geometry = new THREE.BoxGeometry(foreArmLength, foreArmHeight, foreArmWidth);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(x + armLength/2, y - foreArmHeight/2, z);
+    obj.add(mesh);
+}
+
+function createWaist(obj, x, y, z){
+    'use strict';
+    var waistLength = 4;
+    var waistWidth = 5.5;
+    var waistHeight = 1;
+
+    geometry = new THREE.BoxGeometry(waistLength, waistHeight, waistWidth);
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(x, y - waistHeight/2, z);
+    obj.add(mesh);
 }
 
 function createLegR(obj, x, y, z){
     'use strict';
+
 
 }
 
@@ -216,7 +287,6 @@ function handleCollisions(){
 ////////////
 function update(){
     'use strict';
-
 }
 
 /////////////
@@ -241,6 +311,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
+    createMaterials();
     createScene();
     createCamera();
 
@@ -284,10 +355,15 @@ function onResize() {
 ///////////////////////
 function onKeyDown(e) {
     'use strict';
-
-    activeCamera = e.keyCode - 49;
+    
+    if (e.keyCode >= 49 || e.keyCode <= 52) {
+        activeCamera = e.keyCode - 49;
+    }
+    else if (e.keyCode == 54) {
+        wf = wf == true ? false : true;
+    }
+    
     render();
-
 }
 
 ///////////////////////
