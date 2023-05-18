@@ -104,6 +104,7 @@ function createRobot(){
     createArmR(robot, -3, 0, 0);
     createArmL(robot, 3, 0, 0);
     createWaist(robot, 0, -1.5, 0);
+    createAbdomen(robot, 0, -2.5, 0);
 
     scene.add(robot);
 
@@ -208,7 +209,7 @@ function createForearmR(obj, x, y, z, armLength){
     var foreArmHeight = 1;
 
     geometry = new THREE.BoxGeometry(foreArmLength, foreArmHeight, foreArmWidth);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials[3]);
     mesh.position.set(x - armLength/2, y - foreArmHeight/2, z);
     obj.add(mesh);
 }
@@ -237,7 +238,7 @@ function createForearmL(obj, x, y, z, armLength){
     var foreArmHeight = 1;
 
     geometry = new THREE.BoxGeometry(foreArmLength, foreArmHeight, foreArmWidth);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials[3]);
     mesh.position.set(x + armLength/2, y - foreArmHeight/2, z);
     obj.add(mesh);
 }
@@ -249,8 +250,20 @@ function createWaist(obj, x, y, z){
     var waistHeight = 1;
 
     geometry = new THREE.BoxGeometry(waistLength, waistHeight, waistWidth);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials[4]);
     mesh.position.set(x, y - waistHeight/2, z);
+    obj.add(mesh);
+}
+
+function createAbdomen(obj, x, y, z) {
+    'use strict';
+    var abdomenLength = 5;
+    var abdomenWidth = 5.5;
+    var abdomenHeight = 2;
+
+    geometry = new THREE.BoxGeometry(abdomenLength, abdomenHeight, abdomenWidth);
+    mesh = new THREE.Mesh(geometry, materials[5]);
+    mesh.position.set(x, y - abdomenHeight/2, z);
     obj.add(mesh);
 }
 
