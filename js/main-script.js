@@ -28,33 +28,33 @@ function createScene(){
 function createCamera(){
     'use strict';
 
-    // Câmera frontal (projeção ortogonal)
-    const cameraFrontal = new THREE.OrthographicCamera(-12*(window.innerWidth/window.innerHeight), 12*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
+    // Camera frontal (projecao ortogonal)
+    const cameraFrontal = new THREE.OrthographicCamera(-15*(window.innerWidth/window.innerHeight), 15*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
     cameraFrontal.position.set(0, 0, 500);
     cameraFrontal.lookAt(scene.position);
     cameras.push(cameraFrontal);
 
-    // Câmera lateral (projeção ortogonal)
-    const cameraLateral = new THREE.OrthographicCamera(-12*(window.innerWidth/window.innerHeight), 12*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
+    // Camera lateral (projecao ortogonal)
+    const cameraLateral = new THREE.OrthographicCamera(-15*(window.innerWidth/window.innerHeight), 15*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
     cameraLateral.position.set(-500, 0, 0);
     cameraLateral.lookAt(scene.position);
     cameras.push(cameraLateral);
 
-    // Câmera de topo (projeção ortogonal)
-    const cameraTopo = new THREE.OrthographicCamera(-12*(window.innerWidth/window.innerHeight), 12*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
+    // Camera de topo (projecao ortogonal)
+    const cameraTopo = new THREE.OrthographicCamera(-15*(window.innerWidth/window.innerHeight), 15*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
     cameraTopo.position.set(0, 500, 0);
     cameraTopo.lookAt(scene.position);
     cameras.push(cameraTopo);
 
-    // Câmera isométrica (projeção ortogonal)
-    const cameraIsometrica = new THREE.OrthographicCamera(-12*(window.innerWidth/window.innerHeight), 12*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
+    // Camera isometrica (projecao ortogonal)
+    const cameraIsometrica = new THREE.OrthographicCamera(-15*(window.innerWidth/window.innerHeight), 15*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
     cameraIsometrica.position.set(500, 500, 500);
     cameraIsometrica.lookAt(scene.position);
     cameras.push(cameraIsometrica);
 
-    // Câmera isométrica (projeção perspectiva)
+    // Camera isometrica (projecao perspectiva)
     const cameraPerspectiva = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 1000);
-    cameraPerspectiva.position.set(10, 20, 20);
+    cameraPerspectiva.position.set(20, 0, 20);
     cameraPerspectiva.lookAt(scene.position);
     cameras.push(cameraPerspectiva);
 
@@ -87,6 +87,9 @@ function createMaterials(){
 
     // light red - 7
     materials.push(new THREE.MeshBasicMaterial({ color: 0xF96342, wireframe: wf }));
+
+    // cor
+    materials.push(new THREE.MeshBasicMaterial({ color: 0x4857DA, wireframe: wf }));
 }
 
 ////////////////////////
@@ -100,13 +103,11 @@ function createRobot(){
     material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: wf });
 
     createBody(robot, 0, 0, 0);
-    createHead(robot, 0, 1.5, 0);
-    createArms(robot, 3, 0, 0);
-    /* createArmR(robot, -3, 0, 0);
-    createArmL(robot, 3, 0, 0); */
-    createWaist(robot, 0, -1.5, 0);
-    createAbdomen(robot, 0, -2.5, 5.5/2);
-    //createAbdomenWeels(obj, 2, -2.5, 5.5/2 - 1.5);
+    createHead(robot, 0, bodyHeight/2, 0);
+    createArms(robot, bodyLength/2, 0, 0);
+    createAbdomen(robot, 0, -bodyHeight/2, 0);
+    createWaist(robot, 0, -bodyHeight/2 - abdomenHeight, 0);
+    createLegs(robot, -backLength/3, -backHeight/2 - abdomenHeight - waistHeight, -bodyWidth/2);
 
     scene.add(robot);
 
@@ -114,66 +115,52 @@ function createRobot(){
 
 function createHead(obj, x, y, z){
     'use strict';
-    var edgeLength = 1.5
 
     var head = new THREE.Object3D();
-    geometry = new THREE.BoxGeometry(edgeLength, edgeLength, edgeLength);
-    mesh = new THREE.Mesh(geometry, materials[0]);
+    geometry = new THREE.BoxGeometry(headEdgeLength, headEdgeLength, headEdgeLength);
+    mesh = new THREE.Mesh(geometry, materials[8]);
     console.log(materials[0]);
     mesh.position.set(x, y, z);
     head.add(mesh);
 
-    createAntenaR(head, 0.1, 0.7, 0, y, edgeLength);
-    createAntenaL(head, 0.1, 0.7, 0, y, edgeLength);
-    createEyeL(head, 0.2, y, edgeLength);
-    createEyeR(head, 0.2, y, edgeLength);
-    head.position.y += edgeLength/2;
+    createAntenas(head, y, z);
+    createEyes(head, y);
+    head.position.y += headEdgeLength/2;
     
     obj.add(head);
     components.push(head);
 }
 
-function createAntenaR(obj, r, h, z, y, edgeLength){
+function createAntenas(obj, y, z) {
     'use strict';
-    geometry = new THREE.ConeGeometry(r, h, 32);
+
+    geometry = new THREE.ConeGeometry(antenaRadius, antenaHeight, 32);
     mesh = new THREE.Mesh(geometry, materials[4]);
-    mesh.position.set(-edgeLength/3.5, y + h/2 + edgeLength/2, z);
+    mesh.position.set(-headEdgeLength/3.5, y + antenaHeight/2 + headEdgeLength/2, z);
     obj.add(mesh);
-}
 
-function createAntenaL(obj, r, h, z, y, edgeLength){
-    'use strict';
-    geometry = new THREE.ConeGeometry(r, h, 32);
+    geometry = new THREE.ConeGeometry(antenaRadius, antenaHeight, 32);
     mesh = new THREE.Mesh(geometry, materials[4]);
-    mesh.position.set(edgeLength/3.5, y + h/2 + edgeLength/2, z);
+    mesh.position.set(headEdgeLength/3.5, y + antenaHeight/2 + headEdgeLength/2, z);
     obj.add(mesh);
 }
 
-function createEyeR(obj, r, y, edgeLength) {
+function createEyes(obj, y) {
     'use strict';
-    geometry = new THREE.SphereGeometry(r, 32, 16);
-    mesh = new THREE.Mesh(geometry, materials[2]);
-    mesh.position.set(-edgeLength/4, y + edgeLength/8, edgeLength/2);
+    
+    geometry = new THREE.SphereGeometry(eyeRadius, 32, 16);
+    mesh = new THREE.Mesh(geometry, materials[5]);
+    mesh.position.set(headEdgeLength/4, y, headEdgeLength/2);
     obj.add(mesh);
-}
 
-function createEyeL(obj, r, y, edgeLength) {
-    'use strict';
-    geometry = new THREE.SphereGeometry(r, 32, 16);
-    mesh = new THREE.Mesh(geometry, materials[2]);
-    mesh.position.set(edgeLength/4, y + edgeLength/8, edgeLength/2);
+    geometry = new THREE.SphereGeometry(eyeRadius, 32, 16);
+    mesh = new THREE.Mesh(geometry, materials[5]);
+    mesh.position.set(-headEdgeLength/4, y, headEdgeLength/2);
     obj.add(mesh);
 }
 
 function createBody(obj, x, y, z){
     'use strict';
-    var bodyLength = 6;
-    var bodyWidth = 4;
-    var bodyHeight = 3;
-
-    var backLength = 3;
-    var backWidth = 1.5;
-    var backHeight = 3;
 
     var back = new THREE.BoxGeometry(backLength, backHeight, backWidth);
     mesh = new THREE.Mesh(back, materials[6]);
@@ -188,88 +175,141 @@ function createBody(obj, x, y, z){
 
 function createArms(obj, x, y, z) {
     'use strict';
-    var armLength = 1.5;
-    var armWidth = 1.5;
-    var armHeight = 3;
 
+    // create right arm
     geometry = new THREE.BoxGeometry(armLength, armHeight, armWidth);
-
     mesh = new THREE.Mesh(geometry, materials[7]);
-    mesh.position.set(-x - armLength/2, y, z - (4-5.5/2) - armWidth/2);
+    mesh.position.set(-x - armLength/2, y, z - (bodyWidth-(bodyWidth+backWidth)/2) - armWidth/2);
 
     var armR = new THREE.Object3D();
     armR.add(mesh);
-    //createForearmR(armR, -x, y - armHeight/2, z, armLength);
     createForearm(armR, -x - armLength/2, y - armHeight/2, z, armLength);
+    createPipe(armR, -x - armLength, y, z, false);
     obj.add(armR);
+    components.push(armR);
 
+    // create left arm
     geometry = new THREE.BoxGeometry(armLength, armHeight, armWidth);
     mesh = new THREE.Mesh(geometry, materials[7]);
-    mesh.position.set(x + armLength/2, y, z - (4-5.5/2) - armWidth/2);
+    mesh.position.set(x + armLength/2, y, z - (bodyWidth-(bodyWidth+backWidth)/2) - armWidth/2);
 
     var armL = new THREE.Object3D();
     armL.add(mesh);
-    //createForearmL(armL, x, y - armHeight/2, z, armLength);
     createForearm(armL, x + armLength/2, y - armHeight/2, z, armLength);
+    createPipe(armL, x + armLength, y, z, true);
     obj.add(armL);
+}
+
+function createPipe(obj, x, y, z, isLeft) {
+    'use strict';
+
+    var pipeX = isLeft ? pipeRadius : -pipeRadius;
+
+    geometry = new THREE.CylinderGeometry(pipeRadius, pipeRadius, pipeHeight, 32);
+    mesh = new THREE.Mesh(geometry, materials[3]);
+    mesh.position.set(x + pipeX, y + armHeight/3, z - (bodyWidth-(bodyWidth+backWidth)/2) - armWidth/2);
+    obj.add(mesh);
+
 }
 
 function createForearm(obj, x, y, z){
     'use strict';
-    
-    var foreArmLength = 1;
-    var foreArmWidth = 5.5;
-    var foreArmHeight = 1;
 
-    geometry = new THREE.BoxGeometry(foreArmLength, foreArmHeight, foreArmWidth);
+    geometry = new THREE.BoxGeometry(forearmLength, forearmHeight, forearmWidth);
     mesh = new THREE.Mesh(geometry, materials[3]);
-    mesh.position.set(x, y - foreArmHeight/2, z);
+    mesh.position.set(x, y - forearmHeight/2, z);
     obj.add(mesh);
 
 }
 
-function createWaist(obj, x, y, z){
+function createAbdomen(obj, x, y, z){
     'use strict';
-    var waistLength = 4;
-    var waistWidth = 5.5;
-    var waistHeight = 1;
-
-    geometry = new THREE.BoxGeometry(waistLength, waistHeight, waistWidth);
-    mesh = new THREE.Mesh(geometry, materials[4]);
-    mesh.position.set(x, y - waistHeight/2, z);
-    obj.add(mesh);
-}
-
-function createAbdomen(obj, x, y, z) {
-    'use strict';
-    var abdomenLength = 5;
-    var abdomenWidth = 1.5;
-    var abdomenHeight = 2;
 
     geometry = new THREE.BoxGeometry(abdomenLength, abdomenHeight, abdomenWidth);
-    mesh = new THREE.Mesh(geometry, materials[5]);
-    mesh.position.set(x, y - abdomenHeight/2, z - abdomenWidth/2 );
+    mesh = new THREE.Mesh(geometry, materials[4]);
+    mesh.position.set(x, y - abdomenHeight/2, z);
     obj.add(mesh);
 }
 
-function createAbdomenWeels(obj, x, y, z) {/*
-    var radius = 1;
-    var height = 1;
-    geometry = new THREE.CylinderGeometry(radius, radius, height, 32);
-    geometry.rotateY(Math.PI / 2); 
+function createWaist(obj, x, y, z) {
+    'use strict';
+
+    geometry = new THREE.BoxGeometry(waistLength, waistHeight, waistWidth);
+    mesh = new THREE.Mesh(geometry, materials[5]);
+    mesh.position.set(x, y - waistHeight/2, z);
+    var waist = new THREE.Object3D();
+    waist.add(mesh);
+
+    createWheel(waist, bodyLength/2, -(bodyHeight/2 + abdomenHeight), z + waistWidth/2, false);
+    createWheel(waist, -bodyLength/2, -(bodyHeight/2 + abdomenHeight), z + waistWidth/2, true);
+    obj.add(waist);
+}
+
+function createWheel(obj, x, y, z, isRight) {
+    'use strict';
+    geometry = new THREE.CylinderGeometry(wheelRadius, wheelRadius, wheelHeight, 32);
+    geometry.rotateZ(Math.PI / 2);
     mesh = new THREE.Mesh(geometry, materials[6]);
-    mesh.position.set(x - )
-    var cylinderMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    var cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
-    scene.add(cylinder);*/
+    if(isRight) {
+        mesh.position.set(x + wheelHeight/2 , y - wheelHeight, z - wheelRadius);
+    }
+    else {
+        mesh.position.set(x - wheelHeight/2 , y - wheelHeight, z - wheelRadius);
+    }
+    obj.add(mesh);
 }
 
 function createLegs(obj, x, y, z){
     'use strict';
+    var legR = new THREE.Object3D();
+    var legL = new THREE.Object3D();
+    
+    //create thigh
+    geometry = new THREE.BoxGeometry(thighLength, thighHeight, thighWidth);
+    mesh = new THREE.Mesh(geometry, materials[3]);
+    mesh.position.set(x,y - thighHeight/2, z + thighWidth/2);
+    legR.add(mesh);
 
+    geometry = new THREE.BoxGeometry(thighLength, thighHeight, thighWidth);
+    mesh = new THREE.Mesh(geometry, materials[3]);
+    mesh.position.set(-x, y - thighHeight/2, z + thighWidth/2);
+    legL.add(mesh);
+    
+    //create pernas
+    geometry = new THREE.BoxGeometry(legLength, legHeight, legWidth);
+    mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y - legHeight/2 - thighHeight, z + thighWidth/2);
+    legR.add(mesh);
 
+    geometry = new THREE.BoxGeometry(legLength, legHeight, legWidth);
+    mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(-x, y - legHeight/2 - thighHeight, z + thighWidth/2);
+    legL.add(mesh);
+    
+    //create rodas
+    createWheel(legR, x - legLength/2 - wheelHeight/2, y - legHeight - footHeight, z + thighWidth/2 + wheelRadius, true);
+    createWheel(legR, x - legLength/2 - wheelHeight/2, y - legHeight - footHeight + 2.5*wheelRadius, z + thighWidth/2 + wheelRadius, true);
+    createWheel(legL, -x + legLength/2 + wheelHeight/2, y - legHeight - footHeight, z + thighWidth/2 + wheelRadius, false);
+    createWheel(legL, -x + legLength/2 + wheelHeight/2, y - legHeight - footHeight + 2.5*wheelRadius, z + thighWidth/2 + wheelRadius, false);
+
+    //create pes
+    createFoot(legR, x, y, z, true);
+    createFoot(legL, -x, y, z, false);
+
+    obj.add(legR);
+    obj.add(legL);
 }
 
+function createFoot(obj, x, y, z, isRight) { 
+    'use strict';
+
+    var footX = isRight ? x - wheelHeight/4 : x + wheelHeight/4;
+
+    geometry = new THREE.BoxGeometry(footLength, footHeight, footWidth);
+    mesh = new THREE.Mesh(geometry, materials[1]);
+    mesh.position.set(footX, y - thighHeight - legHeight - footHeight/2, z + 2*wheelRadius);
+    obj.add(mesh);
+}
 
 //////////////////////
 /* CHECK COLLISIONS */
@@ -292,6 +332,8 @@ function handleCollisions(){
 ////////////
 function update(){
     'use strict';
+
+    render();
 }
 
 /////////////
@@ -361,14 +403,21 @@ function onResize() {
 function onKeyDown(e) {
     'use strict';
     
-    if (e.keyCode >= 49 || e.keyCode <= 52) {
+    if (e.keyCode >= 49 && e.keyCode <= 53) {
         activeCamera = e.keyCode - 49;
     }
     else if (e.keyCode == 54) {
-        wf = wf == true ? false : true;
+        for(let i = 0; i < 2; i++) {
+            
+        }
+        /*scene.traverse(function(object) {
+            if (object instanceof THREE.Mesh) {
+              object.material.wireframe = !object.material.wireframe; // Set wireframe to true
+            }
+        });*/
     }
     
-    render();
+    update();
 }
 
 ///////////////////////
