@@ -408,7 +408,15 @@ function onKeyDown(e) {
     }
     else if (e.keyCode == 54) {
         for(let i = 0; i < 2; i++) {
-            
+            if (components[0] instanceof THREE.Object3D) {
+                components[0].traverse(function(child) {
+                    if (child instanceof THREE.Mesh) {
+                        child.material.wireframe = true;
+                    }
+                });
+            }
+            console.log(components[0]);
+            //components[i].material.wireframe = !components[i].material.wireframe;
         }
         /*scene.traverse(function(object) {
             if (object instanceof THREE.Mesh) {
