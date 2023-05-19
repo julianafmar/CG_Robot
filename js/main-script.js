@@ -3,10 +3,11 @@
 //////////////////////
 var scene, renderer;
 var geometry, material, mesh;
+
 var cameras = [];
 var activeCamera = 0;
+
 var materials = [];
-var wf = false;
 var robot;
 var components = [];
 
@@ -65,31 +66,31 @@ function createCamera(){
 ////////////////////////
 function createMaterials(){
     // dark blue - 0
-    materials.push(new THREE.MeshBasicMaterial({ color: 0x3300CC, wireframe: wf }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0x3300CC, wireframe: false }));
 
     // light blue - 1
-    materials.push(new THREE.MeshBasicMaterial({ color: 0x4F80FA, wireframe: wf }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0x4F80FA, wireframe: false }));
 
     // white - 2
-    materials.push(new THREE.MeshBasicMaterial({ color: 0xFCFCFC, wireframe: wf }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xFCFCFC, wireframe: false }));
 
     // grey - 3
-    materials.push(new THREE.MeshBasicMaterial({ color: 0xCCCCCC, wireframe: wf }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xCCCCCC, wireframe: false }));
 
     // dark grey - 4
-    materials.push(new THREE.MeshBasicMaterial({ color: 0x9E9C9C, wireframe: wf }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0x9E9C9C, wireframe: false }));
 
     // black - 5
-    materials.push(new THREE.MeshBasicMaterial({ color: 0x2F2F2F, wireframe: wf }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0x2F2F2F, wireframe: false }));
 
     // red - 6
-    materials.push(new THREE.MeshBasicMaterial({ color: 0xCC0000, wireframe: wf }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xCC0000, wireframe: false }));
 
     // light red - 7
-    materials.push(new THREE.MeshBasicMaterial({ color: 0xF96342, wireframe: wf }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xF96342, wireframe: false }));
 
     // cor
-    materials.push(new THREE.MeshBasicMaterial({ color: 0x4857DA, wireframe: wf }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0x4857DA, wireframe: false }));
 }
 
 ////////////////////////
@@ -100,7 +101,7 @@ function createRobot(){
 
     robot = new THREE.Object3D();
     
-    material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: wf });
+    material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: false });
 
     createBody(robot, 0, 0, 0);
     createHead(robot, 0, bodyHeight/2, 0);
@@ -171,6 +172,8 @@ function createBody(obj, x, y, z){
     mesh = new THREE.Mesh(body, materials[6]);
     mesh.position.set(x, y, z + backWidth/2);
     obj.add(mesh);
+    
+    components.push(mesh);
 }
 
 function createArms(obj, x, y, z) {
@@ -186,7 +189,6 @@ function createArms(obj, x, y, z) {
     createForearm(armR, -x - armLength/2, y - armHeight/2, z, armLength);
     createPipe(armR, -x - armLength, y, z, false);
     obj.add(armR);
-    components.push(armR);
 
     // create left arm
     geometry = new THREE.BoxGeometry(armLength, armHeight, armWidth);
@@ -198,6 +200,9 @@ function createArms(obj, x, y, z) {
     createForearm(armL, x + armLength/2, y - armHeight/2, z, armLength);
     createPipe(armL, x + armLength, y, z, true);
     obj.add(armL);
+
+    components.push(armL);
+    components.push(armR);
 }
 
 function createPipe(obj, x, y, z, isLeft) {
@@ -298,6 +303,9 @@ function createLegs(obj, x, y, z){
 
     obj.add(legR);
     obj.add(legL);
+
+    components.push(legL);
+    components.push(legR);
 }
 
 function createFoot(obj, x, y, z, isRight) { 
@@ -402,30 +410,26 @@ function onResize() {
 ///////////////////////
 function onKeyDown(e) {
     'use strict';
-    
-    if (e.keyCode >= 49 && e.keyCode <= 53) {
-        activeCamera = e.keyCode - 49;
-    }
-    else if (e.keyCode == 54) {
-        for(let i = 0; i < 2; i++) {
-            if (components[0] instanceof THREE.Object3D) {
-                components[0].traverse(function(child) {
-                    if (child instanceof THREE.Mesh) {
-                        child.material.wireframe = true;
-                    }
-                });
-            }
-            console.log(components[0]);
-            //components[i].material.wireframe = !components[i].material.wireframe;
-        }
-        /*scene.traverse(function(object) {
-            if (object instanceof THREE.Mesh) {
-              object.material.wireframe = !object.material.wireframe; // Set wireframe to true
-            }
-        });*/
+
+    switch (e.keyCode) {
+        case 81: // Q
+            break;
+        case 65: // A
+            break;
+        case 87: // W
+            break;
+        case 83: // S
+            break;
+        case 69: // E
+            break;
+        case 68: // D
+            break;
+        case 82: // R
+            break;
+        case 70: // F
+            break;    
     }
     
-    update();
 }
 
 ///////////////////////
@@ -433,5 +437,25 @@ function onKeyDown(e) {
 ///////////////////////
 function onKeyUp(e){
     'use strict';
+    
+    // mudei isto para o keyUp pk keyDown deve ser para os movimentos, n para as mudancas aleatorias de camera e wireframe
+    if (e.keyCode >= 49 && e.keyCode <= 53) {
+        activeCamera = e.keyCode - 49;
+    }
+    else if (e.keyCode == 54) {
+        for(let i = 0; i < components.length; i++) {
+            if (components[i] instanceof THREE.Object3D) {
+                components[i].traverse(function(child) {
+                    if (child instanceof THREE.Mesh) {
+                        child.material.wireframe = !child.material.wireframe; // por algum motivo se isto estiver = true o wireframe 
+                                                                              // aparece mas se estiver a negacao dele proprio so muda alguns
+                    }
+                });
+            }
+            console.log(components[0]);
+        }
+    }
+    
+    update();
 
 }
