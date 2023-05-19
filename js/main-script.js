@@ -11,6 +11,9 @@ var materials = [];
 var robot;
 var components = [];
 
+var rotationSpeed = 0.05;
+var isRotating = false;
+
 /////////////////////
 /* CREATE SCENE(S) */
 /////////////////////
@@ -317,6 +320,7 @@ function createFoot(obj, x, y, z, isRight) {
     mesh = new THREE.Mesh(geometry, materials[1]);
     mesh.position.set(footX, y - thighHeight - legHeight - footHeight/2, z + 2*wheelRadius);
     obj.add(mesh);
+    components.push(mesh);
 }
 
 //////////////////////
@@ -351,6 +355,10 @@ function render() {
     'use strict';
 
     renderer.render(scene, cameras[activeCamera]);
+
+    if (isRotating) {
+        components[4].rotation.x += rotationSpeed;
+      }
 
 }
 
@@ -413,6 +421,7 @@ function onKeyDown(e) {
 
     switch (e.keyCode) {
         case 81: // Q
+            isRotating = true;
             break;
         case 65: // A
             break;
@@ -437,8 +446,10 @@ function onKeyDown(e) {
 ///////////////////////
 function onKeyUp(e){
     'use strict';
+
+    if (e.keyCode == 81) // Q
+        isRotating = false;
     
-    // mudei isto para o keyUp pk keyDown deve ser para os movimentos, n para as mudancas aleatorias de camera e wireframe
     if (e.keyCode >= 49 && e.keyCode <= 53) {
         activeCamera = e.keyCode - 49;
     }
