@@ -8,8 +8,9 @@ var cameras = [];
 var activeCamera = 0;
 
 var materials = [];
-var robot;
 var components = [];
+var robot;
+var truck;
 
 var moves = [];
 
@@ -25,6 +26,11 @@ var armsRotatingR = false;
 var headRotatingL = false;
 var headRotatingR = false;
 
+var left = false;
+var right = false;
+var up = false;
+var down = false;
+
 /////////////////////
 /* CREATE SCENE(S) */
 /////////////////////
@@ -35,7 +41,7 @@ function createScene(){
     scene.background = new THREE.Color(0xFEEAC2);
     
     createRobot();
-    createTruck(0, 0, -23);
+    createTruck(0, 3, -23);
 }
 
 //////////////////////
@@ -81,31 +87,35 @@ function createCamera(){
 ////////////////////////
 function createMaterials(){
     // dark blue - 0
-    materials.push(new THREE.MeshBasicMaterial({ color: 0x3300CC, wireframe: false }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0x067BC2, wireframe: false }));
 
     // light blue - 1
-    materials.push(new THREE.MeshBasicMaterial({ color: 0x4F80FA, wireframe: false }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0x84BCDA, wireframe: false }));
 
     // white - 2
     materials.push(new THREE.MeshBasicMaterial({ color: 0xFCFCFC, wireframe: false }));
 
-    // grey - 3
-    materials.push(new THREE.MeshBasicMaterial({ color: 0xCCCCCC, wireframe: false }));
+    // light grey - 3
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xD56062, wireframe: false }));
 
     // dark grey - 4
-    materials.push(new THREE.MeshBasicMaterial({ color: 0x9E9C9C, wireframe: false }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xB8C073, wireframe: false }));
 
     // black - 5
     materials.push(new THREE.MeshBasicMaterial({ color: 0x2F2F2F, wireframe: false }));
 
     // red - 6
-    materials.push(new THREE.MeshBasicMaterial({ color: 0xCC0000, wireframe: false }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xECC30B, wireframe: false }));
 
     // light red - 7
-    materials.push(new THREE.MeshBasicMaterial({ color: 0xF96342, wireframe: false }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xF37748, wireframe: false }));
 
     // cor
-    materials.push(new THREE.MeshBasicMaterial({ color: 0x4857DA, wireframe: false }));
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xD2C23F, wireframe: false }));
+
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xF09D2A, wireframe: false }));
+
+    materials.push(new THREE.MeshBasicMaterial({ color: 0xE46C55, wireframe: false }));
 }
 
 ////////////////////////
@@ -118,11 +128,13 @@ function createRobot(){
     robot.name = 'robot 3D';
     createBody(robot, 0, 0, 0);
     createHead(robot, 0, bodyHeight/2, 0);
-    createArms(robot, bodyLength/2, 0, 0);
+    createArm(robot, bodyLength/2, 0, 0, true);
+    createArm(robot, bodyLength/2, 0, 0, false);
     createAbdomen(robot, 0, -bodyHeight/2, 0);
     createWaist(robot, 0, -bodyHeight/2 - abdomenHeight, 0);
-    createLegs(robot, -backLength/3, -backHeight/2 - abdomenHeight - waistHeight, -bodyWidth/2);
+    createLegs(robot, backLength/3, -backHeight/2 - abdomenHeight - waistHeight, -bodyWidth/2);
 
+    robot.position.set(0, 3, 0)
     scene.add(robot);
 
 }
@@ -133,7 +145,7 @@ function createHead(obj, x, y, z){
     var head = new THREE.Object3D();
     head.name = "head 3D";
     geometry = new THREE.BoxGeometry(headEdgeLength, headEdgeLength, headEdgeLength);
-    mesh = new THREE.Mesh(geometry, materials[8]);
+    mesh = new THREE.Mesh(geometry, materials[0]);
     mesh.position.set(x, y, z);
     mesh.name = 'head';
     head.add(mesh);
@@ -204,46 +216,33 @@ function createBody(obj, x, y, z){
     components.push(mesh);
 }
 
-function createArms(obj, x, y, z) {
-    'use strict';
-    var armR = new THREE.Object3D();
-    armR.name = 'armR 3D';
-    var armL = new THREE.Object3D();
-    armL.name = 'armL 3D';
+function createArm(obj, x, y, z, isRight){
+    'use strict'
+    var arm = new THREE.Object3D();
+    arm.name = 'arm';
 
-    // create right arm
+    var armX = isRight ? - x - armLength/2 : x + armLength/2;
+    var pipeX = isRight ? - x - armLength : x + armLength;
+
     geometry = new THREE.BoxGeometry(armLength, armHeight, armWidth);
     mesh = new THREE.Mesh(geometry, materials[7]);
-    mesh.position.set(-x - armLength/2, y, z - (bodyWidth-(bodyWidth+backWidth)/2) - armWidth/2);
-    mesh.name = 'right arm';
-    armR.add(mesh);
+    mesh.position.set(armX, y, z - (bodyWidth-(bodyWidth+backWidth)/2) - armWidth/2);
+    mesh.name = isRight ? 'right arm' : 'left arm';
+    arm.add(mesh);
     components.push(mesh);
 
-    createForearm(armR, -x - armLength/2, y - armHeight/2, z, armLength);
-    createPipe(armR, -x - armLength, y, z, false);
+    createForearm(arm, armX, y - armHeight/2, z, armLength);
+    createPipe(arm, pipeX, y, z, isRight);
 
-    // create left arm
-    geometry = new THREE.BoxGeometry(armLength, armHeight, armWidth);
-    mesh = new THREE.Mesh(geometry, materials[7]);
-    mesh.position.set(x + armLength/2, y, z - (bodyWidth-(bodyWidth+backWidth)/2) - armWidth/2);
-    mesh.name = 'left arm';
-    armL.add(mesh);
-    components.push(mesh);
+    obj.add(arm);
 
-    createForearm(armL, x + armLength/2, y - armHeight/2, z, armLength);
-    createPipe(armL, x + armLength, y, z, true);
-
-    obj.add(armR);
-    obj.add(armL);
-
-    moves.push(armR);
-    moves.push(armL);
+    moves.push(arm);
 }
 
-function createPipe(obj, x, y, z, isLeft) {
+function createPipe(obj, x, y, z, isRight) {
     'use strict';
 
-    var pipeX = isLeft ? pipeRadius : -pipeRadius;
+    var pipeX = isRight ? -pipeRadius : pipeRadius;
 
     geometry = new THREE.CylinderGeometry(pipeRadius, pipeRadius, pipeHeight, 32);
     mesh = new THREE.Mesh(geometry, materials[3]);
@@ -300,12 +299,8 @@ function createWheel(obj, x, y, z, isRight) {
     geometry.rotateZ(Math.PI / 2);
     mesh = new THREE.Mesh(geometry, materials[6]);
     mesh.name = 'wheel';
-    if(isRight) {
-        mesh.position.set(x + wheelHeight/2 , y - wheelRadius, z - wheelRadius);
-    }
-    else {
-        mesh.position.set(x - wheelHeight/2 , y - wheelRadius, z - wheelRadius);
-    }
+    var wheelX = isRight ? x+wheelHeight/2 : x - wheelHeight/2;
+    mesh.position.set(wheelX, y - wheelRadius, z - wheelRadius);
     obj.add(mesh);
     //components.push(mesh);
 }
@@ -318,50 +313,50 @@ function createLegs(obj, x, y, z){
     legL.name = 'legL 3D';
     
     //create thigh
-    geometry = new THREE.BoxGeometry(thighLength, thighHeight, thighWidth);
-    mesh = new THREE.Mesh(geometry, materials[DARK_GREY]);
-    mesh.position.set(x, y - thighHeight/2, z + thighWidth/2);
-    mesh.name = 'right thigh';
-    legR.add(mesh);
-    components.push(mesh);
-
-    geometry = new THREE.BoxGeometry(thighLength, thighHeight, thighWidth);
-    mesh = new THREE.Mesh(geometry, materials[DARK_GREY]);
-    mesh.position.set(-x, y - thighHeight/2, z + thighWidth/2);
-    mesh.name = 'left thigh';
-    legL.add(mesh);
-    components.push(mesh);
+    createThigh(legR, x, y, z, true);
+    createThigh(legL, x, y, z, false);
     
     //create legs
-    geometry = new THREE.BoxGeometry(legLength, legHeight, legWidth);
-    mesh = new THREE.Mesh(geometry, materials[0]);
-    mesh.position.set(x, y - legHeight/2 - thighHeight, z + thighWidth/2);
-    mesh.name = 'right leg';
-    legR.add(mesh);
-    components.push(mesh);
-
-    geometry = new THREE.BoxGeometry(legLength, legHeight, legWidth);
-    mesh = new THREE.Mesh(geometry, materials[0]);
-    mesh.position.set(-x, y - legHeight/2 - thighHeight, z + thighWidth/2);
-    mesh.name = 'left leg';
-    legL.add(mesh);
-    components.push(mesh);
+    createLeg(legR, x, y - thighHeight, z + thighWidth/2, true);
+    createLeg(legL, x, y - thighHeight, z + thighWidth/2, false);
     
-    //create rodas
-    createWheel(legR, x - legLength/2 - wheelHeight/2, y - legHeight - footHeight, z + thighWidth/2 + wheelRadius, true);
-    createWheel(legR, x - legLength/2 - wheelHeight/2, y - legHeight - footHeight + 2.5*wheelRadius, z + thighWidth/2 + wheelRadius, true);
-    createWheel(legL, -x + legLength/2 + wheelHeight/2, y - legHeight - footHeight, z + thighWidth/2 + wheelRadius, false);
-    createWheel(legL, -x + legLength/2 + wheelHeight/2, y - legHeight - footHeight + 2.5*wheelRadius, z + thighWidth/2 + wheelRadius, false);
+    //create wheels 
+    createWheel(legR, -x - legLength/2 - wheelHeight/2, y - legHeight - footHeight + 0.5*wheelRadius, z + thighWidth/2 + wheelRadius, true);
+    createWheel(legR, -x - legLength/2 - wheelHeight/2, y - legHeight - footHeight + 3*wheelRadius, z + thighWidth/2 + wheelRadius, true);
+    createWheel(legL, x + legLength/2 + wheelHeight/2, y - legHeight - footHeight + 0.5*wheelRadius, z + thighWidth/2 + wheelRadius, false);
+    createWheel(legL, x + legLength/2 + wheelHeight/2, y - legHeight - footHeight + 3*wheelRadius, z + thighWidth/2 + wheelRadius, false);
 
-    //create pes
-    createFoot(legR, x, y, z, true);
-    createFoot(legL, -x, y, z, false);
+    //create feet
+    createFoot(legR, -x, y - thighHeight - legHeight, z, true);
+    createFoot(legL, x, y - thighHeight - legHeight, z, false);
 
     obj.add(legR);
     obj.add(legL);
 
     moves.push(legL);
     moves.push(legR);
+}
+
+function createThigh(obj, x, y, z, isRight){
+    'use strict'
+    var thighX = isRight ? -x : x;
+    geometry = new THREE.BoxGeometry(thighLength, thighHeight, thighWidth);
+    mesh = new THREE.Mesh(geometry, materials[LIGHT_GREY]);
+    mesh.position.set(thighX, y - thighHeight/2, z + thighWidth/2);
+    mesh.name = isRight ? 'right thigh': 'left thigh';
+    obj.add(mesh);
+    components.push(mesh);
+}
+
+function createLeg(obj, x, y, z, isRight){
+    'use strict'
+    var legX = isRight ? -x : x;
+    geometry = new THREE.BoxGeometry(legLength, legHeight, legWidth);
+    mesh = new THREE.Mesh(geometry, materials[DARK_BLUE]);
+    mesh.position.set(legX, y - legHeight/2, z);
+    mesh.name = isRight ? 'right leg' : 'left leg';
+    obj.add(mesh);
+    components.push(mesh);
 }
 
 function createFoot(obj, x, y, z, isRight) { 
@@ -371,8 +366,8 @@ function createFoot(obj, x, y, z, isRight) {
 
     geometry = new THREE.BoxGeometry(footLength, footHeight, footWidth);
     mesh = new THREE.Mesh(geometry, materials[1]);
-    mesh.position.set(footX, y - thighHeight - legHeight - footHeight/2, z + 2*wheelRadius);
-    mesh.name = 'foot';
+    mesh.position.set(footX, y - footHeight/2, z + 2*wheelRadius);
+    mesh.name = isRight ? 'right foot' : 'left foot';
     obj.add(mesh);
     components.push(mesh);
 
@@ -382,10 +377,10 @@ function createFoot(obj, x, y, z, isRight) {
 function createTruck(x, y, z){
     'use strict';
     
-    var truck = new THREE.Object3D();
+    truck = new THREE.Object3D();
 
     geometry = new THREE.BoxGeometry(truckLength, truckHeight, truckWidth);
-    mesh = new THREE.Mesh(geometry, materials[LIGHT_GREY]);
+    mesh = new THREE.Mesh(geometry, materials[DARK_GREY]);
     mesh.name = 'truck';
     mesh.position.set(x, y, z);
     truck.add(mesh);
@@ -432,33 +427,36 @@ function render() {
 
     renderer.render(scene, cameras[activeCamera]);
 
-    if (feetRotatingU && moves[4].rotation.x < 0.5 && moves[5].rotation.x < 0.5) {
+    if (feetRotatingU && moves[4].rotation.x < 0) {
         moves[3].rotation.x += rotationSpeed;
         moves[4].rotation.x += rotationSpeed;
-    }
-    else if (feetRotatingD) {
+    } else if (feetRotatingD && moves[4].rotation.x > -1.60) {
         moves[3].rotation.x -= rotationSpeed;
         moves[4].rotation.x -= rotationSpeed;
-    }
-    else if (legRotatingL) {
-        moves[5].rotation.y += rotationSpeed;
-    }
-    else if (legRotatingR) {
-        moves[5].rotation.y -= rotationSpeed;
-    }
-    else if (armsRotatingL && moves[1].position.x > -0.2 && moves[2].position.x < 0.2) {
+    } else if (legRotatingL && moves[5].rotation.x) {
+        moves[5].rotation.x += rotationSpeed;
+        moves[6].rotation.x += rotationSpeed;
+    } else if (legRotatingR && moves[5].rotation.x) {
+        moves[5].rotation.x -= rotationSpeed;
+        moves[6].rotation.x -= rotationSpeed;
+    } else if (armsRotatingL && moves[1].position.x > -0.2 && moves[2].position.x < 0.2) {
         moves[1].position.add(velocityL);
         moves[2].position.add(velocityR);
-    }
-    else if (armsRotatingR && moves[1].position.x < (bodyLength/2 - armLength) && moves[2].position.x > (-bodyLength/2 + armLength)) {
+    } else if (armsRotatingR && moves[1].position.x < (bodyLength/2 - armLength) && moves[2].position.x > (-bodyLength/2 + armLength)) {
         moves[1].position.add(velocityR);
         moves[2].position.add(velocityL);
-    }
-    else if (headRotatingR && moves[0].rotation.x < 0) {
+    } else if (headRotatingR && moves[0].rotation.x < 0) {
         moves[0].rotation.x += rotationSpeed;
-    }
-    else if (headRotatingL && moves[0].rotation.x > -2) {
+    } else if (headRotatingL && moves[0].rotation.x > -2) {
         moves[0].rotation.x -= rotationSpeed;
+    } else if (left) {
+        truck.position.x -= 0.1;
+    } else if (right) {
+        truck.position.x += 0.1;
+    } else if (up) {
+        truck.position.z -= 0.1;
+    } else if (down) {
+        truck.position.z += 0.1;
     }
 
 }
@@ -544,7 +542,19 @@ function onKeyDown(e) {
             break;
         case 70: // F
             headRotatingR = true;
-            break;    
+            break;  
+        case 37: // left arrow
+            left = true;
+            break;
+        case 39: // right arrow
+            right = true;
+            break;
+        case 38: // up arrow
+            up = true;
+            break;
+        case 40: // down arrow
+            down = true;
+            break;
     }
     
 }
@@ -573,6 +583,14 @@ function onKeyUp(e){
         headRotatingL = false;
     else if (e.keyCode == 70) // F
         headRotatingR = false;
+    else if (e.keyCode == 37) // left arrow
+        left = false;
+    else if (e.keyCode == 39) // F
+        right = false;
+    else if (e.keyCode == 38) // F
+        up = false;
+    else if (e.keyCode == 40) // F
+        down = false;
     else if (e.keyCode == 54) {
         for(let i = 0; i < components.length; i++) {
             console.log(components[i].name + " wireframe: " + components[i].material.wireframe);
