@@ -150,8 +150,10 @@ function createHead(obj, x, y, z){
     mesh.name = 'head';
     head.add(mesh);
 
-    createAntenas(head, y, z);
-    createEyes(head, y);
+    createEye(head, x - headEdgeLength/4, y, z + headEdgeLength/2);
+    createEye(head, x + headEdgeLength/4, y, z + headEdgeLength/2);
+    createAntena(head, x - headEdgeLength/3.5, y + headEdgeLength/2, z);
+    createAntena(head, x + headEdgeLength/3.5, y + headEdgeLength/2, z)
     head.position.y += headEdgeLength/2;
     
     obj.add(head);
@@ -160,40 +162,22 @@ function createHead(obj, x, y, z){
     moves.push(head);
 }
 
-function createAntenas(obj, y, z) {
+function createAntena(obj, x, y, z){
     'use strict';
-
     geometry = new THREE.ConeGeometry(antenaRadius, antenaHeight, 32);
     mesh = new THREE.Mesh(geometry, materials[4]);
-    mesh.position.set(-headEdgeLength/3.5, y + antenaHeight/2 + headEdgeLength/2, z);
+    mesh.position.set(x, y + antenaHeight/2, z);
     mesh.name = 'right antena';
     obj.add(mesh);
-
-    components.push(mesh);
-
-    geometry = new THREE.ConeGeometry(antenaRadius, antenaHeight, 32);
-    mesh = new THREE.Mesh(geometry, materials[4]);
-    mesh.position.set(headEdgeLength/3.5, y + antenaHeight/2 + headEdgeLength/2, z);
-    mesh.name = 'left antena';
-    obj.add(mesh);
-
     components.push(mesh);
 }
 
-function createEyes(obj, y) {
+function createEye(obj, x, y, z){
     'use strict';
-    
     geometry = new THREE.SphereGeometry(eyeRadius, 32, 16);
     mesh = new THREE.Mesh(geometry, materials[5]);
-    mesh.position.set(headEdgeLength/4, y, headEdgeLength/2);
-    mesh.name = 'right eye';
-    obj.add(mesh);
-    components.push(mesh);
-
-    geometry = new THREE.SphereGeometry(eyeRadius, 32, 16);
-    mesh = new THREE.Mesh(geometry, materials[5]);
-    mesh.position.set(-headEdgeLength/4, y, headEdgeLength/2);
-    mesh.name = 'left eye';
+    mesh.position.set(x, y, z);
+    mesh.name = 'eye';
     obj.add(mesh);
     components.push(mesh);
 }
@@ -250,7 +234,6 @@ function createPipe(obj, x, y, z, isRight) {
     mesh.name = 'pipe';
     obj.add(mesh);
     components.push(mesh);
-
 }
 
 function createForearm(obj, x, y, z){
@@ -262,7 +245,6 @@ function createForearm(obj, x, y, z){
     mesh.name = 'forearm';
     obj.add(mesh);
     components.push(mesh);
-
 }
 
 function createAbdomen(obj, x, y, z){
