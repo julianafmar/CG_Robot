@@ -2,7 +2,7 @@
 /* GLOBAL VARIABLES */
 //////////////////////
 var scene, renderer;
-var geometry, material, mesh;
+var geometry, mesh;
 
 var cameras = [];
 var activeCamera = 0;
@@ -11,8 +11,19 @@ var materials = [];
 var robot;
 var components = [];
 
-var rotationSpeed = 0.05;
-var isRotating = false;
+var moves = [];
+
+var feetRotatingU = false;
+var feetRotatingD = false;
+
+var legRotatingL = false;
+var legRotatingR = false;
+
+var armsRotatingL = false;
+var armsRotatingR = false;
+
+var headRotatingL = false;
+var headRotatingR = false;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -24,6 +35,7 @@ function createScene(){
     scene.background = new THREE.Color(0xFEEAC2);
     
     createRobot();
+    createTruck(0, 0, -23);
 }
 
 //////////////////////
@@ -104,9 +116,6 @@ function createRobot(){
 
     robot = new THREE.Object3D();
     robot.name = 'robot 3D';
-    
-    material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: false });
-
     createBody(robot, 0, 0, 0);
     createHead(robot, 0, bodyHeight/2, 0);
     createArms(robot, bodyLength/2, 0, 0);
@@ -134,7 +143,9 @@ function createHead(obj, x, y, z){
     head.position.y += headEdgeLength/2;
     
     obj.add(head);
-    components.push(head);
+    components.push(mesh);
+
+    moves.push(head);
 }
 
 function createAntenas(obj, y, z) {
@@ -146,11 +157,15 @@ function createAntenas(obj, y, z) {
     mesh.name = 'right antena';
     obj.add(mesh);
 
+    components.push(mesh);
+
     geometry = new THREE.ConeGeometry(antenaRadius, antenaHeight, 32);
     mesh = new THREE.Mesh(geometry, materials[4]);
     mesh.position.set(headEdgeLength/3.5, y + antenaHeight/2 + headEdgeLength/2, z);
     mesh.name = 'left antena';
     obj.add(mesh);
+
+    components.push(mesh);
 }
 
 function createEyes(obj, y) {
@@ -161,12 +176,14 @@ function createEyes(obj, y) {
     mesh.position.set(headEdgeLength/4, y, headEdgeLength/2);
     mesh.name = 'right eye';
     obj.add(mesh);
+    components.push(mesh);
 
     geometry = new THREE.SphereGeometry(eyeRadius, 32, 16);
     mesh = new THREE.Mesh(geometry, materials[5]);
     mesh.position.set(-headEdgeLength/4, y, headEdgeLength/2);
     mesh.name = 'left eye';
     obj.add(mesh);
+    components.push(mesh);
 }
 
 function createBody(obj, x, y, z){
@@ -177,13 +194,13 @@ function createBody(obj, x, y, z){
     mesh.position.set(x, y, z - (bodyWidth-(bodyWidth + backWidth)/2) - backWidth/2);
     mesh.name = 'back';
     obj.add(mesh);
+    components.push(mesh);
 
     var body = new THREE.BoxGeometry(bodyLength, bodyHeight, bodyWidth);
     mesh = new THREE.Mesh(body, materials[6]);
     mesh.position.set(x, y, z + backWidth/2);
     mesh.name = 'body';
     obj.add(mesh);
-    
     components.push(mesh);
 }
 
@@ -200,6 +217,7 @@ function createArms(obj, x, y, z) {
     mesh.position.set(-x - armLength/2, y, z - (bodyWidth-(bodyWidth+backWidth)/2) - armWidth/2);
     mesh.name = 'right arm';
     armR.add(mesh);
+    components.push(mesh);
 
     createForearm(armR, -x - armLength/2, y - armHeight/2, z, armLength);
     createPipe(armR, -x - armLength, y, z, false);
@@ -210,6 +228,7 @@ function createArms(obj, x, y, z) {
     mesh.position.set(x + armLength/2, y, z - (bodyWidth-(bodyWidth+backWidth)/2) - armWidth/2);
     mesh.name = 'left arm';
     armL.add(mesh);
+    components.push(mesh);
 
     createForearm(armL, x + armLength/2, y - armHeight/2, z, armLength);
     createPipe(armL, x + armLength, y, z, true);
@@ -217,8 +236,8 @@ function createArms(obj, x, y, z) {
     obj.add(armR);
     obj.add(armL);
 
-    components.push(armR);
-    components.push(armL);
+    moves.push(armR);
+    moves.push(armL);
 }
 
 function createPipe(obj, x, y, z, isLeft) {
@@ -231,6 +250,7 @@ function createPipe(obj, x, y, z, isLeft) {
     mesh.position.set(x + pipeX, y + armHeight/3, z - (bodyWidth-(bodyWidth+backWidth)/2) - armWidth/2);
     mesh.name = 'pipe';
     obj.add(mesh);
+    components.push(mesh);
 
 }
 
@@ -242,6 +262,7 @@ function createForearm(obj, x, y, z){
     mesh.position.set(x, y - forearmHeight/2, z);
     mesh.name = 'forearm';
     obj.add(mesh);
+    components.push(mesh);
 
 }
 
@@ -266,11 +287,11 @@ function createWaist(obj, x, y, z) {
     var waist = new THREE.Object3D();
     waist.name = 'waist 3D';
     waist.add(mesh);
+    components.push(mesh);
 
     createWheel(waist, bodyLength/2, -(bodyHeight/2 + abdomenHeight), z + waistWidth/2, false);
     createWheel(waist, -bodyLength/2, -(bodyHeight/2 + abdomenHeight), z + waistWidth/2, true);
     obj.add(waist);
-    components.push(waist);
 }
 
 function createWheel(obj, x, y, z, isRight) {
@@ -280,12 +301,13 @@ function createWheel(obj, x, y, z, isRight) {
     mesh = new THREE.Mesh(geometry, materials[6]);
     mesh.name = 'wheel';
     if(isRight) {
-        mesh.position.set(x + wheelHeight/2 , y - wheelHeight, z - wheelRadius);
+        mesh.position.set(x + wheelHeight/2 , y - wheelRadius, z - wheelRadius);
     }
     else {
-        mesh.position.set(x - wheelHeight/2 , y - wheelHeight, z - wheelRadius);
+        mesh.position.set(x - wheelHeight/2 , y - wheelRadius, z - wheelRadius);
     }
     obj.add(mesh);
+    //components.push(mesh);
 }
 
 function createLegs(obj, x, y, z){
@@ -297,29 +319,33 @@ function createLegs(obj, x, y, z){
     
     //create thigh
     geometry = new THREE.BoxGeometry(thighLength, thighHeight, thighWidth);
-    mesh = new THREE.Mesh(geometry, materials[3]);
+    mesh = new THREE.Mesh(geometry, materials[DARK_GREY]);
     mesh.position.set(x, y - thighHeight/2, z + thighWidth/2);
     mesh.name = 'right thigh';
     legR.add(mesh);
+    components.push(mesh);
 
     geometry = new THREE.BoxGeometry(thighLength, thighHeight, thighWidth);
-    mesh = new THREE.Mesh(geometry, materials[3]);
+    mesh = new THREE.Mesh(geometry, materials[DARK_GREY]);
     mesh.position.set(-x, y - thighHeight/2, z + thighWidth/2);
     mesh.name = 'left thigh';
     legL.add(mesh);
+    components.push(mesh);
     
-    //create pernas
+    //create legs
     geometry = new THREE.BoxGeometry(legLength, legHeight, legWidth);
     mesh = new THREE.Mesh(geometry, materials[0]);
     mesh.position.set(x, y - legHeight/2 - thighHeight, z + thighWidth/2);
     mesh.name = 'right leg';
     legR.add(mesh);
+    components.push(mesh);
 
     geometry = new THREE.BoxGeometry(legLength, legHeight, legWidth);
     mesh = new THREE.Mesh(geometry, materials[0]);
     mesh.position.set(-x, y - legHeight/2 - thighHeight, z + thighWidth/2);
     mesh.name = 'left leg';
     legL.add(mesh);
+    components.push(mesh);
     
     //create rodas
     createWheel(legR, x - legLength/2 - wheelHeight/2, y - legHeight - footHeight, z + thighWidth/2 + wheelRadius, true);
@@ -334,8 +360,8 @@ function createLegs(obj, x, y, z){
     obj.add(legR);
     obj.add(legL);
 
-    components.push(legL);
-    components.push(legR);
+    moves.push(legL);
+    moves.push(legR);
 }
 
 function createFoot(obj, x, y, z, isRight) { 
@@ -349,6 +375,28 @@ function createFoot(obj, x, y, z, isRight) {
     mesh.name = 'foot';
     obj.add(mesh);
     components.push(mesh);
+
+    moves.push(mesh);
+}
+
+function createTruck(x, y, z){
+    'use strict';
+    
+    var truck = new THREE.Object3D();
+
+    geometry = new THREE.BoxGeometry(truckLength, truckHeight, truckWidth);
+    mesh = new THREE.Mesh(geometry, materials[LIGHT_GREY]);
+    mesh.name = 'truck';
+    mesh.position.set(x, y, z);
+    truck.add(mesh);
+
+    createWheel(truck, x - truckLength/2, y - truckHeight/2, z - truckWidth/2 + 1.5 + wheelRadius, true);
+    createWheel(truck, x - truckLength/2, y - truckHeight/2, z - truckWidth/2 + 1.5 + 3*wheelRadius, true);
+    createWheel(truck, x + truckLength/2, y - truckHeight/2, z - truckWidth/2 + 1.5 + wheelRadius, false);
+    createWheel(truck, x + truckLength/2, y - truckHeight/2, z - truckWidth/2 + 1.5 + 3*wheelRadius, false);
+
+    components.push(mesh);
+    scene.add(truck);
 }
 
 //////////////////////
@@ -384,9 +432,34 @@ function render() {
 
     renderer.render(scene, cameras[activeCamera]);
 
-    if (isRotating) {
-        components[4].rotation.x += rotationSpeed;
-      }
+    if (feetRotatingU && moves[4].rotation.x < 0.5 && moves[5].rotation.x < 0.5) {
+        moves[3].rotation.x += rotationSpeed;
+        moves[4].rotation.x += rotationSpeed;
+    }
+    else if (feetRotatingD) {
+        moves[3].rotation.x -= rotationSpeed;
+        moves[4].rotation.x -= rotationSpeed;
+    }
+    else if (legRotatingL) {
+        moves[5].rotation.y += rotationSpeed;
+    }
+    else if (legRotatingR) {
+        moves[5].rotation.y -= rotationSpeed;
+    }
+    else if (armsRotatingL && moves[1].position.x > -0.2 && moves[2].position.x < 0.2) {
+        moves[1].position.add(velocityL);
+        moves[2].position.add(velocityR);
+    }
+    else if (armsRotatingR && moves[1].position.x < (bodyLength/2 - armLength) && moves[2].position.x > (-bodyLength/2 + armLength)) {
+        moves[1].position.add(velocityR);
+        moves[2].position.add(velocityL);
+    }
+    else if (headRotatingR && moves[0].rotation.x < 0) {
+        moves[0].rotation.x += rotationSpeed;
+    }
+    else if (headRotatingL && moves[0].rotation.x > -2) {
+        moves[0].rotation.x -= rotationSpeed;
+    }
 
 }
 
@@ -435,8 +508,8 @@ function onResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     if (window.innerHeight > 0 && window.innerWidth > 0) {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
+        cameras[activeCamera].aspect = window.innerWidth / window.innerHeight;
+        cameras[activeCamera].updateProjectionMatrix();
     }
 
 }
@@ -449,21 +522,28 @@ function onKeyDown(e) {
 
     switch (e.keyCode) {
         case 81: // Q
-            isRotating = true;
+            feetRotatingU = true;
             break;
         case 65: // A
+            feetRotatingD = true;
             break;
         case 87: // W
+            legRotatingL = true;
             break;
         case 83: // S
+            legRotatingR = true;
             break;
         case 69: // E
+            armsRotatingL = true;
             break;
         case 68: // D
+            armsRotatingR = true;
             break;
         case 82: // R
+            headRotatingL = true;
             break;
         case 70: // F
+            headRotatingR = true;
             break;    
     }
     
@@ -475,15 +555,33 @@ function onKeyDown(e) {
 function onKeyUp(e){
     'use strict';
 
-    if (e.keyCode == 81) // Q
-        isRotating = false;
-    
-    if (e.keyCode >= 49 && e.keyCode <= 53) {
+    if (e.keyCode >= 49 && e.keyCode <= 53) 
         activeCamera = e.keyCode - 49;
-    }
+    else if (e.keyCode == 81) // Q
+        feetRotatingU = false;
+    else if (e.keyCode == 65) // A
+        feetRotatingD = false;
+    else if (e.keyCode == 87) // W
+        legRotatingL = false;
+    else if (e.keyCode == 83) // S
+        legRotatingR = false;
+    else if (e.keyCode == 69) // E
+        armsRotatingL = false;
+    else if (e.keyCode == 68) // D
+        armsRotatingR = false;
+    else if (e.keyCode == 82) // R 
+        headRotatingL = false;
+    else if (e.keyCode == 70) // F
+        headRotatingR = false;
     else if (e.keyCode == 54) {
         for(let i = 0; i < components.length; i++) {
-            if (components[i] instanceof THREE.Object3D) {
+            console.log(components[i].name + " wireframe: " + components[i].material.wireframe);
+        }
+        for(let i = 0; i < components.length; i++) {
+            console.log(components[i].name + " ANTES wireframe: " + components[i].material.wireframe);
+            components[i].material.wireframe = !components[i].material.wireframe;
+            console.log(components[i].name + " DEPOIS wireframe: " + components[i].material.wireframe);
+            /*if (components[i] instanceof THREE.Object3D) {
                 console.log("Is the " + components[i].name + " a mesh? " + components[i] instanceof THREE.Mesh);
                 components[i].traverse(function(child) {
                     if (child instanceof THREE.Mesh) {
@@ -494,7 +592,7 @@ function onKeyUp(e){
                         console.log("after: " + child.material.wireframe + "\n");
                     }
                 });
-            }
+            }*/
         }
     }
     
