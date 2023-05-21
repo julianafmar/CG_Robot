@@ -151,6 +151,7 @@ function createHead(obj, x, y, z){
     mesh.position.set(x, y, z);
     mesh.name = 'head';
     head.add(mesh);
+    components.push(mesh);
 
     createEye(head, x - headEdgeLength/4, y, z + headEdgeLength/2);
     createEye(head, x + headEdgeLength/4, y, z + headEdgeLength/2);
@@ -159,8 +160,7 @@ function createHead(obj, x, y, z){
     head.position.y += headEdgeLength/2;
     
     obj.add(head);
-    components.push(mesh);
-
+    
     moves.push(head);
 }
 
@@ -367,6 +367,7 @@ function createTruck(x, y, z){
     mesh = new THREE.Mesh(geometry, materials[DARK_GREY]);
     mesh.name = 'truck';
     mesh.position.set(x, y, z);
+    components.push(mesh);
     truck.add(mesh);
 
     createWheel(truck, x - truckLength/2, y - truckHeight/2, z - truckWidth/2 + 1.5 + wheelRadius, true);
@@ -374,7 +375,6 @@ function createTruck(x, y, z){
     createWheel(truck, x + truckLength/2, y - truckHeight/2, z - truckWidth/2 + 1.5 + wheelRadius, false);
     createWheel(truck, x + truckLength/2, y - truckHeight/2, z - truckWidth/2 + 1.5 + 3*wheelRadius, false);
 
-    components.push(mesh);
     scene.add(truck);
 }
 
