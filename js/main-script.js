@@ -410,34 +410,46 @@ function render() {
     renderer.render(scene, cameras[activeCamera]);
 
     if (feetRotatingU && moves[4].rotation.x < 0) {
-        moves[3].rotation.x += rotationSpeed;
-        moves[4].rotation.x += rotationSpeed;
+        moves[3].rotation.x += moveSpeed;
+        moves[4].rotation.x += moveSpeed;
     } else if (feetRotatingD && moves[4].rotation.x > -1.60) {
-        moves[3].rotation.x -= rotationSpeed;
-        moves[4].rotation.x -= rotationSpeed;
+        moves[3].rotation.x -= moveSpeed;
+        moves[4].rotation.x -= moveSpeed;
     } else if (legRotatingL && moves[5].rotation.x) {
-        moves[5].rotation.x += rotationSpeed;
-        moves[6].rotation.x += rotationSpeed;
+        moves[5].rotation.x += moveSpeed;
+        moves[6].rotation.x += moveSpeed;
     } else if (legRotatingR && moves[5].rotation.x) {
-        moves[5].rotation.x -= rotationSpeed;
-        moves[6].rotation.x -= rotationSpeed;
+        moves[5].rotation.x -= moveSpeed;
+        moves[6].rotation.x -= moveSpeed;
     } else if (armsRotatingL && moves[1].position.x > -0.2 && moves[2].position.x < 0.2) {
-        moves[1].position.add(velocityL);
-        moves[2].position.add(velocityR);
+        moves[1].position.x -= moveSpeed;
+        moves[2].position.x += moveSpeed;
     } else if (armsRotatingR && moves[1].position.x < (bodyLength/2 - armLength) && moves[2].position.x > (-bodyLength/2 + armLength)) {
-        moves[1].position.add(velocityR);
-        moves[2].position.add(velocityL);
+        moves[1].position.x += moveSpeed;
+        moves[2].position.x -= moveSpeed;
     } else if (headRotatingR && moves[0].rotation.x < 0) {
-        moves[0].rotation.x += rotationSpeed;
+        moves[0].rotation.x += moveSpeed;
     } else if (headRotatingL && moves[0].rotation.x > -2) {
-        moves[0].rotation.x -= rotationSpeed;
-    } else if (left) {
+        moves[0].rotation.x -= moveSpeed;
+    } else if (up && left) {
         truck.position.x -= 0.1;
-    } else if (right) {
-        truck.position.x += 0.1;
-    } else if (up) {
         truck.position.z -= 0.1;
-    } else if (down) {
+    } else if (up && right) {
+        truck.position.x += 0.1;
+        truck.position.z -= 0.1;
+    } else if (down && left) {
+        truck.position.x -= 0.1;
+        truck.position.z += 0.1;
+    } else if (down && right) {
+        truck.position.x += 0.1;
+        truck.position.z += 0.1;
+    } else if (left && !right) {
+        truck.position.x -= 0.1;
+    } else if (right && !left) {
+        truck.position.x += 0.1;
+    } else if (up && !down) {
+        truck.position.z -= 0.1;
+    } else if (down && !up) {
         truck.position.z += 0.1;
     }
 
@@ -567,11 +579,11 @@ function onKeyUp(e){
         headRotatingR = false;
     else if (e.keyCode == 37) // left arrow
         left = false;
-    else if (e.keyCode == 39) // F
+    else if (e.keyCode == 39) // right arrow
         right = false;
-    else if (e.keyCode == 38) // F
+    else if (e.keyCode == 38) // up arrow
         up = false;
-    else if (e.keyCode == 40) // F
+    else if (e.keyCode == 40) // down arrow
         down = false;
     else if (e.keyCode == 54) {
         for(let i = 0; i < components.length; i++) {

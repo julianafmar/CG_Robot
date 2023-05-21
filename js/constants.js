@@ -77,6 +77,4 @@ const DARK_RED = 6;
 const LIGHT_RED = 7;
 
 // speed
-const rotationSpeed = 0.05;
-const velocityL = new THREE.Vector3(-0.01, 0, 0);
-const velocityR = new THREE.Vector3(0.01, 0, 0);
+const moveSpeed = 0.05;
