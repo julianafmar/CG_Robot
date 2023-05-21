@@ -156,7 +156,7 @@ function createHead(obj, x, y, z){
     createEye(head, x - headEdgeLength/4, y, z + headEdgeLength/2);
     createEye(head, x + headEdgeLength/4, y, z + headEdgeLength/2);
     createAntena(head, x - headEdgeLength/3.5, y + headEdgeLength/2, z);
-    createAntena(head, x + headEdgeLength/3.5, y + headEdgeLength/2, z)
+    createAntena(head, x + headEdgeLength/3.5, y + headEdgeLength/2, z);
     head.position.y += headEdgeLength/2;
     
     obj.add(head);
@@ -171,7 +171,6 @@ function createAntena(obj, x, y, z){
     mesh.position.set(x, y + antenaHeight/2, z);
     mesh.name = 'right antena';
     obj.add(mesh);
-    components.push(mesh);
 }
 
 function createEye(obj, x, y, z){
@@ -181,7 +180,6 @@ function createEye(obj, x, y, z){
     mesh.position.set(x, y, z);
     mesh.name = 'eye';
     obj.add(mesh);
-    components.push(mesh);
 }
 
 function createBody(obj, x, y, z){
@@ -192,7 +190,6 @@ function createBody(obj, x, y, z){
     mesh.position.set(x, y, z - (bodyWidth-(bodyWidth + backWidth)/2) - backWidth/2);
     mesh.name = 'back';
     obj.add(mesh);
-    components.push(mesh);
 
     var body = new THREE.BoxGeometry(bodyLength, bodyHeight, bodyWidth);
     mesh = new THREE.Mesh(body, materials[4]);
@@ -286,7 +283,7 @@ function createWheel(obj, x, y, z, isRight) {
     var wheelX = isRight ? x+wheelHeight/2 : x - wheelHeight/2;
     mesh.position.set(wheelX, y - wheelRadius, z - wheelRadius);
     obj.add(mesh);
-    //components.push(mesh);
+    components.push(mesh);
 }
 
 function createLegs(obj, x, y, z){
@@ -299,16 +296,19 @@ function createLegs(obj, x, y, z){
     //create thigh
     createThigh(legR, x, y, z, true);
     createThigh(legL, x, y, z, false);
+    components.push(mesh);
     
     //create legs
     createLeg(legR, x, y - thighHeight, z + thighWidth/2, true);
     createLeg(legL, x, y - thighHeight, z + thighWidth/2, false);
+    components.push(mesh);
     
     //create wheels 
     createWheel(legR, -x - legLength/2 - wheelHeight/2, y - legHeight - footHeight + 0.5*wheelRadius, z + thighWidth/2 + wheelRadius, true);
     createWheel(legR, -x - legLength/2 - wheelHeight/2, y - legHeight - footHeight + 3*wheelRadius, z + thighWidth/2 + wheelRadius, true);
     createWheel(legL, x + legLength/2 + wheelHeight/2, y - legHeight - footHeight + 0.5*wheelRadius, z + thighWidth/2 + wheelRadius, false);
     createWheel(legL, x + legLength/2 + wheelHeight/2, y - legHeight - footHeight + 3*wheelRadius, z + thighWidth/2 + wheelRadius, false);
+    components.push(mesh);
 
     //create feet
     createFoot(legR, -x, y - thighHeight - legHeight, z, true);
@@ -329,7 +329,6 @@ function createThigh(obj, x, y, z, isRight){
     mesh.position.set(thighX, y - thighHeight/2, z + thighWidth/2);
     mesh.name = isRight ? 'right thigh': 'left thigh';
     obj.add(mesh);
-    components.push(mesh);
 }
 
 function createLeg(obj, x, y, z, isRight){
@@ -340,7 +339,6 @@ function createLeg(obj, x, y, z, isRight){
     mesh.position.set(legX, y - legHeight/2, z);
     mesh.name = isRight ? 'right leg' : 'left leg';
     obj.add(mesh);
-    components.push(mesh);
 }
 
 function createFoot(obj, x, y, z, isRight) { 
