@@ -95,26 +95,28 @@ function createMaterials(){
     // white - 2
     materials.push(new THREE.MeshBasicMaterial({ color: 0xFCFCFC, wireframe: false }));
 
-    // light grey - 3
+    // light red - 3
     materials.push(new THREE.MeshBasicMaterial({ color: 0xD56062, wireframe: false }));
 
-    // dark grey - 4
+    // light green - 4
     materials.push(new THREE.MeshBasicMaterial({ color: 0xB8C073, wireframe: false }));
 
     // black - 5
     materials.push(new THREE.MeshBasicMaterial({ color: 0x2F2F2F, wireframe: false }));
 
-    // red - 6
+    // yellow - 6
     materials.push(new THREE.MeshBasicMaterial({ color: 0xECC30B, wireframe: false }));
 
-    // light red - 7
+    // orange/red - 7
     materials.push(new THREE.MeshBasicMaterial({ color: 0xF37748, wireframe: false }));
 
-    // cor
+    // mustard - 8
     materials.push(new THREE.MeshBasicMaterial({ color: 0xD2C23F, wireframe: false }));
 
+    // orange - 9
     materials.push(new THREE.MeshBasicMaterial({ color: 0xF09D2A, wireframe: false }));
 
+    // coral - 10
     materials.push(new THREE.MeshBasicMaterial({ color: 0xE46C55, wireframe: false }));
 }
 
