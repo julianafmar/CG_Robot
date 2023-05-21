@@ -147,7 +147,7 @@ function createHead(obj, x, y, z){
     var head = new THREE.Object3D();
     head.name = "head 3D";
     geometry = new THREE.BoxGeometry(headEdgeLength, headEdgeLength, headEdgeLength);
-    mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh = new THREE.Mesh(geometry, materials[1]);
     mesh.position.set(x, y, z);
     mesh.name = 'head';
     head.add(mesh);
@@ -167,7 +167,7 @@ function createHead(obj, x, y, z){
 function createAntena(obj, x, y, z){
     'use strict';
     geometry = new THREE.ConeGeometry(antenaRadius, antenaHeight, 32);
-    mesh = new THREE.Mesh(geometry, materials[4]);
+    mesh = new THREE.Mesh(geometry, materials[8]);
     mesh.position.set(x, y + antenaHeight/2, z);
     mesh.name = 'right antena';
     obj.add(mesh);
@@ -188,14 +188,14 @@ function createBody(obj, x, y, z){
     'use strict';
 
     var back = new THREE.BoxGeometry(backLength, backHeight, backWidth);
-    mesh = new THREE.Mesh(back, materials[6]);
+    mesh = new THREE.Mesh(back, materials[4]);
     mesh.position.set(x, y, z - (bodyWidth-(bodyWidth + backWidth)/2) - backWidth/2);
     mesh.name = 'back';
     obj.add(mesh);
     components.push(mesh);
 
     var body = new THREE.BoxGeometry(bodyLength, bodyHeight, bodyWidth);
-    mesh = new THREE.Mesh(body, materials[6]);
+    mesh = new THREE.Mesh(body, materials[4]);
     mesh.position.set(x, y, z + backWidth/2);
     mesh.name = 'body';
     obj.add(mesh);
@@ -253,7 +253,7 @@ function createAbdomen(obj, x, y, z){
     'use strict';
 
     geometry = new THREE.BoxGeometry(abdomenLength, abdomenHeight, abdomenWidth);
-    mesh = new THREE.Mesh(geometry, materials[4]);
+    mesh = new THREE.Mesh(geometry, materials[6]);
     mesh.position.set(x, y - abdomenHeight/2, z);
     mesh.name = 'abdomen';
     components.push(mesh);
@@ -264,7 +264,7 @@ function createWaist(obj, x, y, z) {
     'use strict';
 
     geometry = new THREE.BoxGeometry(waistLength, waistHeight, waistWidth);
-    mesh = new THREE.Mesh(geometry, materials[5]);
+    mesh = new THREE.Mesh(geometry, materials[8]);
     mesh.position.set(x, y - waistHeight/2, z);
     mesh.name = 'waist';
     var waist = new THREE.Object3D();
@@ -281,7 +281,7 @@ function createWheel(obj, x, y, z, isRight) {
     'use strict';
     geometry = new THREE.CylinderGeometry(wheelRadius, wheelRadius, wheelHeight, 32);
     geometry.rotateZ(Math.PI / 2);
-    mesh = new THREE.Mesh(geometry, materials[6]);
+    mesh = new THREE.Mesh(geometry, materials[5]);
     mesh.name = 'wheel';
     var wheelX = isRight ? x+wheelHeight/2 : x - wheelHeight/2;
     mesh.position.set(wheelX, y - wheelRadius, z - wheelRadius);
@@ -364,7 +364,7 @@ function createTruck(x, y, z){
     truck = new THREE.Object3D();
 
     geometry = new THREE.BoxGeometry(truckLength, truckHeight, truckWidth);
-    mesh = new THREE.Mesh(geometry, materials[DARK_GREY]);
+    mesh = new THREE.Mesh(geometry, materials[7]);
     mesh.name = 'truck';
     mesh.position.set(x, y, z);
     components.push(mesh);
@@ -434,25 +434,21 @@ function render() {
     } else if (headRotatingL && moves[0].rotation.x > -2) {
         moves[0].rotation.x -= moveSpeed;
     } else if (up && left) {
-        truck.position.x -= 0.1;
-        truck.position.z -= 0.1;
+        truck.position.add(new THREE.Vector3(-0.1, 0, -0.1));
     } else if (up && right) {
-        truck.position.x += 0.1;
-        truck.position.z -= 0.1;
+        truck.position.add(new THREE.Vector3(0.1, 0, -0.1));
     } else if (down && left) {
-        truck.position.x -= 0.1;
-        truck.position.z += 0.1;
+        truck.position.add(new THREE.Vector3(-0.1, 0, 0.1));
     } else if (down && right) {
-        truck.position.x += 0.1;
-        truck.position.z += 0.1;
+        truck.position.add(new THREE.Vector3(0.1, 0, 0.1));
     } else if (left && !right) {
-        truck.position.x -= 0.1;
+        truck.position.add(new THREE.Vector3(-0.1, 0, 0));
     } else if (right && !left) {
-        truck.position.x += 0.1;
+        truck.position.add(new THREE.Vector3(0.1, 0, 0));
     } else if (up && !down) {
-        truck.position.z -= 0.1;
+        truck.position.add(new THREE.Vector3(0, 0, -0.1));
     } else if (down && !up) {
-        truck.position.z += 0.1;
+        truck.position.add(new THREE.Vector3(0, 0, 0.1));
     }
 
 }
