@@ -362,10 +362,10 @@ function createTruck(x, y, z){
     
     truck.add(mesh);
 
-    createWheel(truck, x - truckLength/2, y - truckHeight/2 - wheelRadius, z - truckWidth/2 + 1.5 + wheelRadius, true);
-    createWheel(truck, x - truckLength/2, y - truckHeight/2 - wheelRadius, z - truckWidth/2 + 1.5 + 3*wheelRadius, true);
-    createWheel(truck, x + truckLength/2, y - truckHeight/2 - wheelRadius, z - truckWidth/2 + 1.5 + wheelRadius, false);
-    createWheel(truck, x + truckLength/2, y - truckHeight/2 - wheelRadius, z - truckWidth/2 + 1.5 + 3*wheelRadius, false);
+    createWheel(truck, x - truckLength/2 + wheelHeight/2, y - truckHeight/2 - wheelRadius, z - truckWidth/2 + 1.5 + wheelRadius, true);
+    createWheel(truck, x - truckLength/2 + wheelHeight/2, y - truckHeight/2 - wheelRadius, z - truckWidth/2 + 1.5 + 3*wheelRadius, true);
+    createWheel(truck, x + truckLength/2 - wheelHeight/2, y - truckHeight/2 - wheelRadius, z - truckWidth/2 + 1.5 + wheelRadius, false);
+    createWheel(truck, x + truckLength/2 - wheelHeight/2, y - truckHeight/2 - wheelRadius, z - truckWidth/2 + 1.5 + 3*wheelRadius, false);
 
     truck.position.y += 2/3*legWidth - wheelRadius/2;
     scene.add(truck);
