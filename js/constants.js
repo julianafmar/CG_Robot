@@ -49,7 +49,7 @@ const pipeHeight = 3;
 // thigh measures
 const thighLength = 0.7;
 const thighWidth = 0.7;
-const thighHeight = 1.5;
+const thighHeight = 2;
 
 // leg measures
 const legLength = 1.5;
@@ -57,7 +57,7 @@ const legWidth = 2;
 const legHeight = 5;
 
 // foot measures
-const footLength = 2;
+const footLength = legLength + wheelHeight;
 const footWidth = 2;
 const footHeight = 1;
 
@@ -65,16 +65,6 @@ const footHeight = 1;
 const truckLength = 6;
 const truckWidth = 16;
 const truckHeight = 8;
-
-// color codes
-const DARK_BLUE = 0;
-const LIGHT_BLUE = 1;
-const WHITE = 2;
-const LIGHT_GREY = 3;
-const DARK_GREY = 4;
-const BLACK = 5;
-const DARK_RED = 6;
-const LIGHT_RED = 7;
 
 // speed
 const moveSpeed = 0.05;
