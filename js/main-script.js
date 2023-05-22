@@ -141,8 +141,6 @@ function createRobot(){
     robot.position.set(0, 3, 0)
     scene.add(robot);
 
-    moves.forEach(move => console.log(move.name));
-
 }
 
 function createHead(obj){
