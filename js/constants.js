@@ -61,10 +61,10 @@ const footLength = legLength + wheelHeight;
 const footWidth = 2;
 const footHeight = 1;
 
-// truck measures
-const truckLength = 6;
-const truckWidth = 16;
-const truckHeight = 8;
+// trailer measures
+const trailerLength = 6;
+const trailerWidth = 16;
+const trailerHeight = 8;
 
 // speed
 const moveSpeed = 0.05;

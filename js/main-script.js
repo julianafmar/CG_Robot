@@ -6,11 +6,13 @@ var geometry, mesh;
 
 var cameras = [];
 var activeCamera = 0;
+var startTime;
+var direction;
 
 var materials = [];
 var objects3D = [];
 var robot;
-var truck;
+var trailer;
 
 var moves = [];
 
@@ -31,8 +33,12 @@ var right = false;
 var up = false;
 var down = false;
 
+var collided = false;
+var isRobot = true;
+
+var finalPosition = new THREE.Vector3(0, wheelRadius, 11);
 const robotBounds = new THREE.Box3();
-const truckBounds = new THREE.Box3();
+const trailerBounds = new THREE.Box3();
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -44,7 +50,7 @@ function createScene(){
     scene.background = new THREE.Color(0xFEEAC2);
     
     createRobot();
-    createTruck(0, 3, -23);
+    createTrailer(0, 3, -23);
 }
 
 //////////////////////
@@ -351,25 +357,25 @@ function createFoot(obj, x, y, z, isRight) {
     moves.push(foot);
 }
 
-function createTruck(x, y, z){
+function createTrailer(x, y, z){
     'use strict';
     
-    truck = new THREE.Object3D();
+    trailer = new THREE.Object3D();
 
-    geometry = new THREE.BoxGeometry(truckLength, truckHeight, truckWidth);
+    geometry = new THREE.BoxGeometry(trailerLength, trailerHeight, trailerWidth);
     mesh = new THREE.Mesh(geometry, materials[8]);
-    mesh.name = 'truck';
+    mesh.name = 'trailer';
     mesh.position.set(x, y, z);
     
-    truck.add(mesh);
+    trailer.add(mesh);
 
-    createWheel(truck, x - truckLength/2 + wheelHeight/2, y - truckHeight/2 - wheelRadius, z - truckWidth/2 + 1.5 + wheelRadius, true);
-    createWheel(truck, x - truckLength/2 + wheelHeight/2, y - truckHeight/2 - wheelRadius, z - truckWidth/2 + 1.5 + 3*wheelRadius, true);
-    createWheel(truck, x + truckLength/2 - wheelHeight/2, y - truckHeight/2 - wheelRadius, z - truckWidth/2 + 1.5 + wheelRadius, false);
-    createWheel(truck, x + truckLength/2 - wheelHeight/2, y - truckHeight/2 - wheelRadius, z - truckWidth/2 + 1.5 + 3*wheelRadius, false);
+    createWheel(trailer, x - trailerLength/2 + wheelHeight/2, y - trailerHeight/2 - wheelRadius, z - trailerWidth/2 + 1.5 + wheelRadius, true);
+    createWheel(trailer, x - trailerLength/2 + wheelHeight/2, y - trailerHeight/2 - wheelRadius, z - trailerWidth/2 + 1.5 + 3*wheelRadius, true);
+    createWheel(trailer, x + trailerLength/2 - wheelHeight/2, y - trailerHeight/2 - wheelRadius, z - trailerWidth/2 + 1.5 + wheelRadius, false);
+    createWheel(trailer, x + trailerLength/2 - wheelHeight/2, y - trailerHeight/2 - wheelRadius, z - trailerWidth/2 + 1.5 + 3*wheelRadius, false);
 
-    truck.position.y += 2/3*legWidth - wheelRadius/2;
-    scene.add(truck);
+    trailer.position.y += 2/3*legWidth - wheelRadius/2;
+    scene.add(trailer);
 }
 
 //////////////////////
@@ -379,11 +385,12 @@ function checkCollisions(){
     'use strict';
 
     robotBounds.setFromObject(robot);
-    truckBounds.setFromObject(truck);
+    trailerBounds.setFromObject(trailer);
 
-    if(robotBounds.intersectsBox(truckBounds)) {
-        // apenas ha colisao se o robot estiver em modo camiao
-        console.log("Collision detected!");
+    if(robotBounds.intersectsBox(trailerBounds) && !isRobot) {
+        direction = new THREE.Vector3().subVectors(finalPosition, trailer.position).normalize();
+        startTime = Date.now();
+        collided = true;
         handleCollisions();
     }
 
@@ -395,7 +402,22 @@ function checkCollisions(){
 function handleCollisions(){
     'use strict';
 
-    //animaçao do reboque a ir para o lugar certo em linha reta, podendo intersetar o camiao
+    var currentTime = Date.now();
+    var elapsed = currentTime - startTime;
+    
+    var elapsedSeconds = elapsed / 1000;
+    
+    var distanceToMove = 0.05 * elapsedSeconds;
+
+    if (distanceToMove > trailer.position.distanceTo(finalPosition)) {
+        trailer.position.copy(finalPosition);
+        // DUVIDA: o que é suposto fazer dps da colisao?
+        return;
+    }
+    
+    trailer.position.addScaledVector(direction, distanceToMove);
+    
+    requestAnimationFrame(handleCollisions);
 
 }
 
@@ -416,73 +438,82 @@ function render() {
 
     renderer.render(scene, cameras[activeCamera]);
     
-    if (feetRotatingU && moves[3].rotation.x <= Math.PI && !feetRotatingD) {
-        moves[3].rotation.x += moveSpeed;
-        moves[5].rotation.x += moveSpeed;
-    } 
-    
-    else if (feetRotatingD && moves[3].rotation.x >= 0 && !feetRotatingU) {
-        moves[3].rotation.x -= moveSpeed;
-        moves[5].rotation.x -= moveSpeed;
-    } 
-    
-    else if (legRotatingL && moves[4].rotation.x <= 1.548 && !legRotatingR) {
-        moves[4].rotation.x += moveSpeed;
-        moves[6].rotation.x += moveSpeed;
-    } 
-    
-    else if (legRotatingR && moves[4].rotation.x >= 0 && !legRotatingL) {
-        moves[4].rotation.x -= moveSpeed;
-        moves[6].rotation.x -= moveSpeed;
-    } 
-    
-    else if (armsRotatingL && moves[1].position.x >= -bodyLength/2 - armLength/2 
-                && moves[2].position.x <= bodyLength/2 + armLength/2 && !armsRotatingR) {
-        moves[1].position.x -= moveSpeed;
-        moves[2].position.x += moveSpeed;
-    } 
-    
-    else if (armsRotatingR && moves[1].position.x <= (-bodyLength/2 + armLength/2) 
-                && moves[2].position.x >= bodyLength/2 - armLength/2 && !armsRotatingL) {
-        moves[1].position.x += moveSpeed;
-        moves[2].position.x -= moveSpeed;
-    } 
-    
-    else if (headRotatingR && moves[0].rotation.x <= 0 && !headRotatingL) {
-        moves[0].rotation.x += moveSpeed;
-    } 
-    
-    else if (headRotatingL && moves[0].rotation.x >= -Math.PI && !headRotatingR) {
-        moves[0].rotation.x -= moveSpeed;
-    } 
-    
-    else if (up) {
-        if(left) 
-            truck.position.add(new THREE.Vector3(-0.1, 0, -0.1));
-        else if(right) 
-            truck.position.add(new THREE.Vector3(0.1, 0, -0.1));
-        else if(!down) 
-            truck.position.add(new THREE.Vector3(0, 0, -0.1));
-    } 
-    
-    else if (down) {
-        if(left) 
-            truck.position.add(new THREE.Vector3(-0.1, 0, 0.1));
-        else if(right) 
-            truck.position.add(new THREE.Vector3(0.1, 0, 0.1));
-        else if(!up) 
-            truck.position.add(new THREE.Vector3(0, 0, 0.1));    
-    } 
-    
-    else if (left && !right) {
-        truck.position.add(new THREE.Vector3(-0.1, 0, 0));
-    } 
-    
-    else if (right && !left) {
-        truck.position.add(new THREE.Vector3(0.1, 0, 0));
+    if (!collided) {
+        if (feetRotatingU && moves[3].rotation.x <= Math.PI && !feetRotatingD) {
+            moves[3].rotation.x += moveSpeed;
+            moves[5].rotation.x += moveSpeed;
+        } 
+        
+        else if (feetRotatingD && moves[3].rotation.x >= 0 && !feetRotatingU) {
+            moves[3].rotation.x -= moveSpeed;
+            moves[5].rotation.x -= moveSpeed;
+        } 
+        
+        else if (legRotatingL && moves[4].rotation.x <= 1.548 && !legRotatingR) {
+            moves[4].rotation.x += moveSpeed;
+            moves[6].rotation.x += moveSpeed;
+        } 
+        
+        else if (legRotatingR && moves[4].rotation.x >= 0 && !legRotatingL) {
+            moves[4].rotation.x -= moveSpeed;
+            moves[6].rotation.x -= moveSpeed;
+        } 
+        
+        else if (armsRotatingL && moves[1].position.x >= -bodyLength/2 - armLength/2 
+                    && moves[2].position.x <= bodyLength/2 + armLength/2 && !armsRotatingR) {
+            moves[1].position.x -= moveSpeed;
+            moves[2].position.x += moveSpeed;
+        } 
+        
+        else if (armsRotatingR && moves[1].position.x <= (-bodyLength/2 + armLength/2) 
+                    && moves[2].position.x >= bodyLength/2 - armLength/2 && !armsRotatingL) {
+            moves[1].position.x += moveSpeed;
+            moves[2].position.x -= moveSpeed;
+        } 
+        
+        else if (headRotatingR && moves[0].rotation.x <= 0 && !headRotatingL) {
+            moves[0].rotation.x += moveSpeed;
+        } 
+        
+        else if (headRotatingL && moves[0].rotation.x >= -Math.PI && !headRotatingR) {
+            moves[0].rotation.x -= moveSpeed;
+        } 
+        
+        else if (up) {
+            if(left) 
+                trailer.position.add(new THREE.Vector3(-0.1, 0, -0.1));
+            else if(right) 
+                trailer.position.add(new THREE.Vector3(0.1, 0, -0.1));
+            else if(!down) 
+                trailer.position.add(new THREE.Vector3(0, 0, -0.1));
+        } 
+        
+        else if (down) {
+            if(left) 
+                trailer.position.add(new THREE.Vector3(-0.1, 0, 0.1));
+            else if(right) 
+                trailer.position.add(new THREE.Vector3(0.1, 0, 0.1));
+            else if(!up) 
+                trailer.position.add(new THREE.Vector3(0, 0, 0.1));    
+        } 
+        
+        else if (left && !right) {
+            trailer.position.add(new THREE.Vector3(-0.1, 0, 0));
+        } 
+        
+        else if (right && !left) {
+            trailer.position.add(new THREE.Vector3(0.1, 0, 0));
+        }
+        
+        if(moves[3].rotation.x >= 3.14 && moves[4].rotation.x >= 1.5 && moves[0].rotation.x <= -3.14 && moves[1].position.x >= -2.25) {
+            isRobot = false;
+        }
+        else {
+            isRobot = true;
+        }
+        
+        checkCollisions();
     }
-
-    checkCollisions();
 
 }
 
