@@ -402,45 +402,73 @@ function render() {
 
     renderer.render(scene, cameras[activeCamera]);
     
-    if (feetRotatingU && moves[3].rotation.x <= Math.PI) {
+    if (feetRotatingU && moves[3].rotation.x <= Math.PI && !feetRotatingD) {
         moves[3].rotation.x += moveSpeed;
         moves[5].rotation.x += moveSpeed;
-    } else if (feetRotatingD && moves[3].rotation.x >= 0) {
+    } 
+    
+    else if (feetRotatingD && moves[3].rotation.x >= 0 && !feetRotatingU) {
         moves[3].rotation.x -= moveSpeed;
         moves[5].rotation.x -= moveSpeed;
-    } else if (legRotatingL && moves[4].rotation.x <= 1.548) {
+    } 
+    
+    else if (legRotatingL && moves[4].rotation.x <= 1.548 && !legRotatingR) {
         moves[4].rotation.x += moveSpeed;
         moves[6].rotation.x += moveSpeed;
-    } else if (legRotatingR && moves[4].rotation.x >= 0) {
+    } 
+    
+    else if (legRotatingR && moves[4].rotation.x >= 0 && !legRotatingL) {
         moves[4].rotation.x -= moveSpeed;
         moves[6].rotation.x -= moveSpeed;
-    } else if (armsRotatingL && moves[1].position.x >= -bodyLength/2 - armLength/2 && moves[2].position.x <= bodyLength/2 + armLength/2) {
+    } 
+    
+    else if (armsRotatingL && moves[1].position.x >= -bodyLength/2 - armLength/2 
+                && moves[2].position.x <= bodyLength/2 + armLength/2 && !armsRotatingR) {
         moves[1].position.x -= moveSpeed;
         moves[2].position.x += moveSpeed;
-    } else if (armsRotatingR && moves[1].position.x <= (-bodyLength/2 + armLength/2) && moves[2].position.x >= bodyLength/2 - armLength/2) {
+    } 
+    
+    else if (armsRotatingR && moves[1].position.x <= (-bodyLength/2 + armLength/2) 
+                && moves[2].position.x >= bodyLength/2 - armLength/2 && !armsRotatingL) {
         moves[1].position.x += moveSpeed;
         moves[2].position.x -= moveSpeed;
-    } else if (headRotatingR && moves[0].rotation.x <= 0) {
+    } 
+    
+    else if (headRotatingR && moves[0].rotation.x <= 0 && !headRotatingL) {
         moves[0].rotation.x += moveSpeed;
-    } else if (headRotatingL && moves[0].rotation.x >= -Math.PI) {
+    } 
+    
+    else if (headRotatingL && moves[0].rotation.x >= -Math.PI && !headRotatingR) {
         moves[0].rotation.x -= moveSpeed;
-    } else if (up && left) {
-        truck.position.add(new THREE.Vector3(-0.1, 0, -0.1));
-    } else if (up && right) {
-        truck.position.add(new THREE.Vector3(0.1, 0, -0.1));
-    } else if (down && left) {
-        truck.position.add(new THREE.Vector3(-0.1, 0, 0.1));
-    } else if (down && right) {
-        truck.position.add(new THREE.Vector3(0.1, 0, 0.1));
-    } else if (left && !right) {
+    } 
+    
+    else if (up) {
+        if(left) 
+            truck.position.add(new THREE.Vector3(-0.1, 0, -0.1));
+        else if(right) 
+            truck.position.add(new THREE.Vector3(0.1, 0, -0.1));
+        else if(!down) 
+            truck.position.add(new THREE.Vector3(0, 0, -0.1));
+    } 
+    
+    else if (down) {
+        if(left) 
+            truck.position.add(new THREE.Vector3(-0.1, 0, 0.1));
+        else if(right) 
+            truck.position.add(new THREE.Vector3(0.1, 0, 0.1));
+        else if(!up) 
+            truck.position.add(new THREE.Vector3(0, 0, 0.1));    
+    } 
+    
+    else if (left && !right) {
         truck.position.add(new THREE.Vector3(-0.1, 0, 0));
-    } else if (right && !left) {
+    } 
+    
+    else if (right && !left) {
         truck.position.add(new THREE.Vector3(0.1, 0, 0));
-    } else if (up && !down) {
-        truck.position.add(new THREE.Vector3(0, 0, -0.1));
-    } else if (down && !up) {
-        truck.position.add(new THREE.Vector3(0, 0, 0.1));
     }
+
+    checkCollisions();
 
 }
 
