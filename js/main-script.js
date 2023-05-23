@@ -31,6 +31,9 @@ var right = false;
 var up = false;
 var down = false;
 
+const robotBounds = new THREE.Box3();
+const truckBounds = new THREE.Box3();
+
 /////////////////////
 /* CREATE SCENE(S) */
 /////////////////////
@@ -375,6 +378,15 @@ function createTruck(x, y, z){
 function checkCollisions(){
     'use strict';
 
+    robotBounds.setFromObject(robot);
+    truckBounds.setFromObject(truck);
+
+    if(robotBounds.intersectsBox(truckBounds)) {
+        // apenas ha colisao se o robot estiver em modo camiao
+        console.log("Collision detected!");
+        handleCollisions();
+    }
+
 }
 
 ///////////////////////
@@ -382,6 +394,8 @@ function checkCollisions(){
 ///////////////////////
 function handleCollisions(){
     'use strict';
+
+    //animaçao do reboque a ir para o lugar certo em linha reta, podendo intersetar o camiao
 
 }
 
