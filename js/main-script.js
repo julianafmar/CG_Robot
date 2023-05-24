@@ -40,6 +40,8 @@ var finalPosition = new THREE.Vector3(0, wheelRadius, 11);
 const robotBounds = new THREE.Box3();
 const trailerBounds = new THREE.Box3();
 
+// TODO : mover no eixo do z
+
 /////////////////////
 /* CREATE SCENE(S) */
 /////////////////////
@@ -387,11 +389,14 @@ function checkCollisions(){
     robotBounds.setFromObject(robot);
     trailerBounds.setFromObject(trailer);
 
-    if(robotBounds.intersectsBox(trailerBounds) && !isRobot) {
+    if(robotBounds.intersectsBox(trailerBounds) && !isRobot && !collided) {
         direction = new THREE.Vector3().subVectors(finalPosition, trailer.position).normalize();
         startTime = Date.now();
         collided = true;
         handleCollisions();
+    }
+    if(collided && !robotBounds.intersectsBox(trailerBounds)) {
+        collided = false;
     }
 
 }
@@ -479,41 +484,41 @@ function render() {
             moves[0].rotation.x -= moveSpeed;
         } 
         
-        else if (up) {
-            if(left) 
-                trailer.position.add(new THREE.Vector3(-0.1, 0, -0.1));
-            else if(right) 
-                trailer.position.add(new THREE.Vector3(0.1, 0, -0.1));
-            else if(!down) 
-                trailer.position.add(new THREE.Vector3(0, 0, -0.1));
-        } 
-        
-        else if (down) {
-            if(left) 
-                trailer.position.add(new THREE.Vector3(-0.1, 0, 0.1));
-            else if(right) 
-                trailer.position.add(new THREE.Vector3(0.1, 0, 0.1));
-            else if(!up) 
-                trailer.position.add(new THREE.Vector3(0, 0, 0.1));    
-        } 
-        
-        else if (left && !right) {
-            trailer.position.add(new THREE.Vector3(-0.1, 0, 0));
-        } 
-        
-        else if (right && !left) {
-            trailer.position.add(new THREE.Vector3(0.1, 0, 0));
-        }
-        
         if(moves[3].rotation.x >= 3.14 && moves[4].rotation.x >= 1.5 && moves[0].rotation.x <= -3.14 && moves[1].position.x >= -2.25) {
             isRobot = false;
         }
         else {
             isRobot = true;
         }
-        
-        checkCollisions();
     }
+
+    if (up) {
+        if(left) 
+            trailer.position.add(new THREE.Vector3(-0.1, 0, -0.1));
+        else if(right) 
+            trailer.position.add(new THREE.Vector3(0.1, 0, -0.1));
+        else if(!down) 
+            trailer.position.add(new THREE.Vector3(0, 0, -0.1));
+    } 
+    
+    else if (down) {
+        if(left) 
+            trailer.position.add(new THREE.Vector3(-0.1, 0, 0.1));
+        else if(right) 
+            trailer.position.add(new THREE.Vector3(0.1, 0, 0.1));
+        else if(!up) 
+            trailer.position.add(new THREE.Vector3(0, 0, 0.1));    
+    } 
+    
+    else if (left && !right) {
+        trailer.position.add(new THREE.Vector3(-0.1, 0, 0));
+    } 
+    
+    else if (right && !left) {
+        trailer.position.add(new THREE.Vector3(0.1, 0, 0));
+    }
+
+    checkCollisions();
 
 }
 
