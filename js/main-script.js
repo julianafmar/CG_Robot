@@ -36,11 +36,11 @@ var down = false;
 var collided = false;
 var isRobot = true;
 
-var finalPosition = new THREE.Vector3(0, wheelRadius, 11);
+var finalPosition = new THREE.Vector3(0, wheelRadius, 16);
 const robotBounds = new THREE.Box3();
 const trailerBounds = new THREE.Box3();
 
-// TODO : mover no eixo do z
+var animation = false;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -149,7 +149,7 @@ function createRobot(){
     createLegs(robot, true);
     createLegs(robot, false);
 
-    robot.position.set(0, 3, 0)
+    robot.position.set(0, 3, 5)
     scene.add(robot);
 
 }
@@ -377,6 +377,7 @@ function createTrailer(x, y, z){
     createWheel(trailer, x + trailerLength/2 - wheelHeight/2, y - trailerHeight/2 - wheelRadius, z - trailerWidth/2 + 1.5 + 3*wheelRadius, false);
 
     trailer.position.y += 2/3*legWidth - wheelRadius/2;
+    trailer.position.z += 9;
     scene.add(trailer);
 }
 
@@ -399,6 +400,7 @@ function checkCollisions(){
         collided = false;
     }
 
+    animation = false;
 }
 
 ///////////////////////
@@ -406,6 +408,7 @@ function checkCollisions(){
 ///////////////////////
 function handleCollisions(){
     'use strict';
+    animation = true;
 
     var currentTime = Date.now();
     var elapsed = currentTime - startTime;
@@ -416,7 +419,6 @@ function handleCollisions(){
 
     if (distanceToMove > trailer.position.distanceTo(finalPosition)) {
         trailer.position.copy(finalPosition);
-        // DUVIDA: o que é suposto fazer dps da colisao?
         return;
     }
     
@@ -492,7 +494,7 @@ function render() {
         }
     }
 
-    if (up) {
+    if (up && !animation) {
         if(left) 
             trailer.position.add(new THREE.Vector3(-0.1, 0, -0.1));
         else if(right) 
@@ -501,7 +503,7 @@ function render() {
             trailer.position.add(new THREE.Vector3(0, 0, -0.1));
     } 
     
-    else if (down) {
+    else if (down && !animation) {
         if(left) 
             trailer.position.add(new THREE.Vector3(-0.1, 0, 0.1));
         else if(right) 
@@ -510,11 +512,11 @@ function render() {
             trailer.position.add(new THREE.Vector3(0, 0, 0.1));    
     } 
     
-    else if (left && !right) {
+    else if (left && !right && !animation) {
         trailer.position.add(new THREE.Vector3(-0.1, 0, 0));
     } 
     
-    else if (right && !left) {
+    else if (right && !left && !animation) {
         trailer.position.add(new THREE.Vector3(0.1, 0, 0));
     }
 
