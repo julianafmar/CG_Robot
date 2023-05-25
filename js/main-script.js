@@ -74,9 +74,9 @@ function createCamera(){
     cameras.push(cameraLateral);
 
     // Camera de topo (projecao ortogonal)
-    const cameraTopo = new THREE.OrthographicCamera(-15*(window.innerWidth/window.innerHeight), 15*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
-    cameraTopo.position.set(0, 500, 0);
-    cameraTopo.lookAt(scene.position);
+    const cameraTopo = new THREE.OrthographicCamera(window.innerWidth/-40, window.innerWidth/40, window.innerHeight/40, window.innerHeight/-40, 1, 1000);
+    cameraTopo.position.set(0, 500, -5);
+    cameraTopo.lookAt(0, 0, -5);
     cameras.push(cameraTopo);
 
     // Camera isometrica (projecao ortogonal)
@@ -87,7 +87,7 @@ function createCamera(){
 
     // Camera isometrica (projecao perspectiva)
     const cameraPerspectiva = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 1000);
-    cameraPerspectiva.position.set(20, 0, 20);
+    cameraPerspectiva.position.set(20, 20, 20);
     cameraPerspectiva.lookAt(scene.position);
     cameras.push(cameraPerspectiva);
 
@@ -313,7 +313,7 @@ function createLegs(obj, isRight){
     createLeg(leg, 0, - (thighHeight + legHeight/2) - thighLength, thighWidth/2 - thighWidth, isRight);
     
     //create wheels
-    createWheel(leg, n * (legLength/2 + wheelHeight/2), - (legHeight + footHeight) - thighLength, thighWidth/2- thighWidth + wheelRadius/2, isRight);
+    createWheel(leg, n * (legLength/2 + wheelHeight/2), - (legHeight + footHeight) - thighLength + 0.2, thighWidth/2- thighWidth + wheelRadius/2, isRight);
     createWheel(leg, n * (legLength/2 + wheelHeight/2), - (legHeight + footHeight) + 2.5*wheelRadius - thighLength, thighWidth/2 - thighWidth + wheelRadius/2, isRight);
 
     //create feet
@@ -375,10 +375,19 @@ function createTrailer(x, y, z){
     createWheel(trailer, x - trailerLength/2 + wheelHeight/2, y - trailerHeight/2 - wheelRadius, z - trailerWidth/2 + 1.5 + 3*wheelRadius, true);
     createWheel(trailer, x + trailerLength/2 - wheelHeight/2, y - trailerHeight/2 - wheelRadius, z - trailerWidth/2 + 1.5 + wheelRadius, false);
     createWheel(trailer, x + trailerLength/2 - wheelHeight/2, y - trailerHeight/2 - wheelRadius, z - trailerWidth/2 + 1.5 + 3*wheelRadius, false);
+    createTrailerPiece(trailer, x, y - trailerHeight/2, z + trailerWidth/4);
 
     trailer.position.y += 2/3*legWidth - wheelRadius/2;
     trailer.position.z += 9;
     scene.add(trailer);
+}
+
+function createTrailerPiece (obj, x, y, z) {
+    geometry = new THREE.CylinderGeometry(trailerPieceRadius, trailerPieceRadius, trailerPieceHeight, 32);
+    geometry.rotateX(Math.PI / 2);
+    mesh = new THREE.Mesh(geometry, materials[9]);
+    mesh.position.set(x, y, z)
+    obj.add(mesh);
 }
 
 //////////////////////

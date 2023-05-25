@@ -59,12 +59,16 @@ const legHeight = 5;
 // foot measures
 const footLength = legLength + wheelHeight;
 const footWidth = 2;
-const footHeight = 1;
+const footHeight = 0.7;
 
 // trailer measures
 const trailerLength = 6;
 const trailerWidth = 16;
 const trailerHeight = 8;
+
+// trailer piece
+const trailerPieceHeight = 3;
+const trailerPieceRadius = 1;
 
 // speed
 const moveSpeed = 0.05;
