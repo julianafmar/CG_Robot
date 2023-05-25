@@ -72,3 +72,6 @@ const trailerPieceRadius = 1;
 
 // speed
 const moveSpeed = 0.05;
+
+// position
+const finalPosition = new THREE.Vector3(0, wheelRadius, 16);

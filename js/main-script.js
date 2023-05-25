@@ -36,7 +36,6 @@ var down = false;
 var collided = false;
 var isRobot = true;
 
-var finalPosition = new THREE.Vector3(0, wheelRadius, 16);
 const robotBounds = new THREE.Box3();
 const trailerBounds = new THREE.Box3();
 
@@ -61,19 +60,19 @@ function createScene(){
 function createCamera(){
     'use strict';
 
-    // Camera frontal (projecao ortogonal)
+    // Camera frontal
     const cameraFrontal = new THREE.OrthographicCamera(-15*(window.innerWidth/window.innerHeight), 15*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
     cameraFrontal.position.set(0, 0, 500);
     cameraFrontal.lookAt(scene.position);
     cameras.push(cameraFrontal);
 
-    // Camera lateral (projecao ortogonal)
+    // Camera lateral
     const cameraLateral = new THREE.OrthographicCamera(-15*(window.innerWidth/window.innerHeight), 15*(window.innerWidth/window.innerHeight), 12, -12, 1, 1000);
     cameraLateral.position.set(-500, 0, 0);
     cameraLateral.lookAt(scene.position);
     cameras.push(cameraLateral);
 
-    // Camera de topo (projecao ortogonal)
+    // Camera de topo
     const cameraTopo = new THREE.OrthographicCamera(window.innerWidth/-40, window.innerWidth/40, window.innerHeight/40, window.innerHeight/-40, 1, 1000);
     cameraTopo.position.set(0, 500, -5);
     cameraTopo.lookAt(0, 0, -5);
@@ -399,7 +398,7 @@ function checkCollisions(){
     robotBounds.setFromObject(robot);
     trailerBounds.setFromObject(trailer);
 
-    if(robotBounds.intersectsBox(trailerBounds) && !isRobot && !collided) {
+    if(robotBounds.intersectsBoxtrailerBounds() && !isRobot && !collided) {
         direction = new THREE.Vector3().subVectors(finalPosition, trailer.position).normalize();
         startTime = Date.now();
         collided = true;
@@ -493,7 +492,7 @@ function render() {
         
         else if (headRotatingF && moves[0].rotation.x <= 0 && !headRotatingR) {
             moves[0].rotation.x += moveSpeed;
-        } 
+        }
         
         if(moves[3].rotation.x >= 3.14 && moves[4].rotation.x >= 1.5 && moves[0].rotation.x <= -3.14 && moves[1].position.x >= -2.25) {
             isRobot = false;
@@ -504,28 +503,28 @@ function render() {
     }
 
     if (up && !animation) {
-        if(left) 
+        if(left && !right && !down) 
             trailer.position.add(new THREE.Vector3(-0.1, 0, -0.1));
-        else if(right) 
+        else if(right && !left && !down) 
             trailer.position.add(new THREE.Vector3(0.1, 0, -0.1));
-        else if(!down) 
+        else if(!down || (left && right)) 
             trailer.position.add(new THREE.Vector3(0, 0, -0.1));
     } 
     
-    else if (down && !animation) {
-        if(left) 
+    if (down && !animation) {
+        if(left && !right && !up) 
             trailer.position.add(new THREE.Vector3(-0.1, 0, 0.1));
-        else if(right) 
+        else if(right && !left && !up) 
             trailer.position.add(new THREE.Vector3(0.1, 0, 0.1));
-        else if(!up) 
+        else if(!up || (left && right)) 
             trailer.position.add(new THREE.Vector3(0, 0, 0.1));    
     } 
     
-    else if (left && !right && !animation) {
+    if (left && !right && !animation) {
         trailer.position.add(new THREE.Vector3(-0.1, 0, 0));
     } 
     
-    else if (right && !left && !animation) {
+    if (right && !left && !animation) {
         trailer.position.add(new THREE.Vector3(0.1, 0, 0));
     }
 
