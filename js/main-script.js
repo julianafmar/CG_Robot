@@ -36,8 +36,8 @@ var down = false;
 var collided = false;
 var isRobot = true;
 
-const robotBounds = new THREE.Box3();
-const trailerBounds = new THREE.Box3();
+var robotBounds;
+var trailerBounds;
 
 var animation = false;
 
@@ -138,7 +138,7 @@ function createRobot(){
     'use strict';
 
     robot = new THREE.Object3D();
-    robot.name = 'robot 3D';
+    robot.name = 'robot';
     createBody(robot);
     createHead(robot);
     createArm(robot, true);
@@ -150,7 +150,6 @@ function createRobot(){
 
     robot.position.set(0, 3, 5)
     scene.add(robot);
-
 }
 
 function createHead(obj){
@@ -192,18 +191,18 @@ function createEye(obj, x, y, z, isRight){
     mesh.name = isRight ? 'right eye' : 'left eye';
     mesh.position.set(x, y, z);
     obj.add(mesh);
-    
 }
 
 function createBody(obj){
     'use strict';
     var body = new THREE.Object3D();
+    body.name = 'body';
+
     geometry = new THREE.BoxGeometry(backLength, backHeight, backWidth);
     mesh = new THREE.Mesh(geometry, materials[10]);
     mesh.name = 'back';
     body.add(mesh);
     
-
     geometry = new THREE.BoxGeometry(bodyLength, bodyHeight, bodyWidth);
     mesh = new THREE.Mesh(geometry, materials[10]);
     mesh.position.z = backWidth/2 + bodyWidth/2;
@@ -389,22 +388,73 @@ function createTrailerPiece (obj, x, y, z) {
     obj.add(mesh);
 }
 
+function createBoundingBox(obj){
+    let minX = Infinity;
+    let minY = Infinity;
+    let minZ = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    let maxZ = -Infinity;
+
+    obj.traverse((child) => {
+        if (child.name!='robot 3D' && child instanceof THREE.Mesh){
+            const position = new THREE.Vector3();
+            position.setFromMatrixPosition(child.matrixWorld);
+            
+            child.updateMatrixWorld();
+            var positionBuffer = child.geometry.attributes.position.array;
+
+            for (var i = 0; i < positionBuffer.length; i += 3) {
+                var x = positionBuffer[i];
+                var y = positionBuffer[i + 1];
+                var z = positionBuffer[i + 2];
+
+                var vertex = new THREE.Vector3(x, y, z);
+
+                vertex.applyMatrix4(child.matrixWorld);
+                minX = Math.min(minX, vertex.x);
+                minY = Math.min(minY, vertex.y);
+                minZ = Math.min(minZ, vertex.z);
+                maxX = Math.max(maxX, vertex.x);
+                maxY = Math.max(maxY, vertex.y);
+                maxZ = Math.max(maxZ, vertex.z);
+            }
+        }
+    });
+
+    const boundingBox = {
+        min: new THREE.Vector3(minX, minY, minZ),
+        max: new THREE.Vector3(maxX, maxY, maxZ),
+    };
+
+    return boundingBox;
+}
+
+function intersectsBox(box1, box2){
+    const intersectX = box1.max.x > box2.min.x && box1.min.x < box2.max.x;
+    const intersectY = box1.max.y > box2.min.y && box1.min.y < box2.max.y;
+    const intersectZ = box1.max.z > box2.min.z && box1.min.z < box2.max.z;
+    
+    return intersectX && intersectY && intersectZ;
+}
+
 //////////////////////
 /* CHECK COLLISIONS */
 //////////////////////
 function checkCollisions(){
     'use strict';
 
-    robotBounds.setFromObject(robot);
-    trailerBounds.setFromObject(trailer);
+    robotBounds = createBoundingBox(robot); 
+    trailerBounds = createBoundingBox(trailer);
 
-    if(robotBounds.intersectsBoxtrailerBounds() && !isRobot && !collided) {
+    if(intersectsBox(trailerBounds, robotBounds) && !isRobot && !collided) {
         direction = new THREE.Vector3().subVectors(finalPosition, trailer.position).normalize();
         startTime = Date.now();
         collided = true;
         handleCollisions();
     }
-    if(collided && !robotBounds.intersectsBox(trailerBounds)) {
+
+    if(collided && !intersectsBox(trailerBounds, robotBounds)) {
         collided = false;
     }
 
