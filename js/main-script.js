@@ -16,17 +16,17 @@ var trailer;
 
 var moves = [];
 
-var feetRotatingU = false;
-var feetRotatingD = false;
+var feetRotatingQ = false;
+var feetRotatingA = false;
 
-var legRotatingL = false;
-var legRotatingR = false;
+var legRotatingW = false;
+var legRotatingS = false;
 
-var armsRotatingL = false;
-var armsRotatingR = false;
+var armsRotatingD = false;
+var armsRotatingE = false;
 
-var headRotatingL = false;
 var headRotatingR = false;
+var headRotatingF = false;
 
 var left = false;
 var right = false;
@@ -124,7 +124,7 @@ function createMaterials(){
     //feet - 8
     materials.push(new THREE.MeshBasicMaterial({ color: 0xe1c4c4, wireframe: false }));
 
-    //thigh - 9
+    //thigh and trailer piece- 9
     materials.push(new THREE.MeshBasicMaterial({ color: 0x959595, wireframe: false }));
 
     //body and back - 10
@@ -158,7 +158,6 @@ function createHead(obj){
     'use strict';
 
     var head = new THREE.Object3D();
-    head.position.set(0, -0.80, 0);
     head.name = 'head';
 
     geometry = new THREE.BoxGeometry(headEdgeLength, headEdgeLength, headEdgeLength);
@@ -172,7 +171,7 @@ function createHead(obj){
     createAntena(head, -headEdgeLength/3.5, headEdgeLength/2+antenaHeight/2 + 0.75, 0, true);
     createAntena(head, headEdgeLength/3.5, headEdgeLength/2+antenaHeight/2 + 0.75, 0, false);
 
-    head.position.y += bodyHeight/2 + headEdgeLength/2;
+    head.position.y += bodyHeight/2 + headEdgeLength/2 - 0.80;
 
     obj.add(head);
     moves.push(head);
@@ -347,12 +346,13 @@ function createLeg(obj, x, y, z, isRight){
 function createFoot(obj, x, y, z, isRight) { 
     'use strict';
     var foot = new THREE.Object3D();
-    foot.position.set(x, y - footHeight/2, z - footWidth/2);
     
     geometry = new THREE.BoxGeometry(footLength, footHeight, footWidth);
     mesh = new THREE.Mesh(geometry, materials[8]);
     mesh.position.set(0, footHeight/2, footWidth/2);
     mesh.name = isRight ? 'right foot' : 'left foot';
+
+    foot.position.set(x, y - footHeight/2, z - footWidth/2);
   
     foot.add(mesh);
     obj.add(foot);
@@ -455,44 +455,44 @@ function render() {
     renderer.render(scene, cameras[activeCamera]);
     
     if (!collided) {
-        if (feetRotatingU && moves[3].rotation.x <= Math.PI && !feetRotatingD) {
+        if (feetRotatingQ && moves[3].rotation.x <= Math.PI && !feetRotatingA) {
             moves[3].rotation.x += moveSpeed;
             moves[5].rotation.x += moveSpeed;
         } 
         
-        else if (feetRotatingD && moves[3].rotation.x >= 0 && !feetRotatingU) {
+        else if (feetRotatingA && moves[3].rotation.x >= 0 && !feetRotatingQ) {
             moves[3].rotation.x -= moveSpeed;
             moves[5].rotation.x -= moveSpeed;
         } 
         
-        else if (legRotatingL && moves[4].rotation.x <= 1.548 && !legRotatingR) {
+        else if (legRotatingW && moves[4].rotation.x <= 1.548 && !legRotatingS) {
             moves[4].rotation.x += moveSpeed;
             moves[6].rotation.x += moveSpeed;
         } 
         
-        else if (legRotatingR && moves[4].rotation.x >= 0 && !legRotatingL) {
+        else if (legRotatingS && moves[4].rotation.x >= 0 && !legRotatingW) {
             moves[4].rotation.x -= moveSpeed;
             moves[6].rotation.x -= moveSpeed;
         } 
         
-        else if (armsRotatingL && moves[1].position.x >= -bodyLength/2 - armLength/2 
-                    && moves[2].position.x <= bodyLength/2 + armLength/2 && !armsRotatingR) {
+        else if (armsRotatingD && moves[1].position.x >= -bodyLength/2 - armLength/2 
+                    && moves[2].position.x <= bodyLength/2 + armLength/2 && !armsRotatingE) {
             moves[1].position.x -= moveSpeed;
             moves[2].position.x += moveSpeed;
         } 
         
-        else if (armsRotatingR && moves[1].position.x <= (-bodyLength/2 + armLength/2) 
-                    && moves[2].position.x >= bodyLength/2 - armLength/2 && !armsRotatingL) {
+        else if (armsRotatingE && moves[1].position.x <= (-bodyLength/2 + armLength/2) 
+                    && moves[2].position.x >= bodyLength/2 - armLength/2 && !armsRotatingD) {
             moves[1].position.x += moveSpeed;
             moves[2].position.x -= moveSpeed;
         } 
         
-        else if (headRotatingR && moves[0].rotation.x <= 0 && !headRotatingL) {
-            moves[0].rotation.x += moveSpeed;
+        else if (headRotatingR && moves[0].rotation.x >= -Math.PI && !headRotatingF) {
+            moves[0].rotation.x -= moveSpeed;
         } 
         
-        else if (headRotatingL && moves[0].rotation.x >= -Math.PI && !headRotatingR) {
-            moves[0].rotation.x -= moveSpeed;
+        else if (headRotatingF && moves[0].rotation.x <= 0 && !headRotatingR) {
+            moves[0].rotation.x += moveSpeed;
         } 
         
         if(moves[3].rotation.x >= 3.14 && moves[4].rotation.x >= 1.5 && moves[0].rotation.x <= -3.14 && moves[1].position.x >= -2.25) {
@@ -592,28 +592,28 @@ function onKeyDown(e) {
 
     switch (e.keyCode) {
         case 81: // Q
-            feetRotatingU = true;
+            feetRotatingQ = true;
             break;
         case 65: // A
-            feetRotatingD = true;
+            feetRotatingA = true;
             break;
         case 87: // W
-            legRotatingL = true;
+            legRotatingW = true;
             break;
         case 83: // S
-            legRotatingR = true;
-            break;
-        case 69: // E
-            armsRotatingL = true;
+            legRotatingS= true;
             break;
         case 68: // D
-            armsRotatingR = true;
+            armsRotatingD = true;
+            break;
+        case 69: // E
+            armsRotatingE = true;
             break;
         case 82: // R
-            headRotatingL = true;
+            headRotatingR = true;
             break;
         case 70: // F
-            headRotatingR = true;
+            headRotatingF = true;
             break;  
         case 37: // left arrow
             left = true;
@@ -640,21 +640,21 @@ function onKeyUp(e){
     if (e.keyCode >= 49 && e.keyCode <= 53) 
         activeCamera = e.keyCode - 49;
     else if (e.keyCode == 81) // Q
-        feetRotatingU = false;
+        feetRotatingQ = false;
     else if (e.keyCode == 65) // A
-        feetRotatingD = false;
+        feetRotatingA = false;
     else if (e.keyCode == 87) // W
-        legRotatingL = false;
+        legRotatingW = false;
     else if (e.keyCode == 83) // S
-        legRotatingR = false;
-    else if (e.keyCode == 69) // E
-        armsRotatingL = false;
+        legRotatingS = false;
     else if (e.keyCode == 68) // D
-        armsRotatingR = false;
+        armsRotatingD = false;
+    else if (e.keyCode == 69) // E
+        armsRotatingE = false;
     else if (e.keyCode == 82) // R 
-        headRotatingL = false;
-    else if (e.keyCode == 70) // F
         headRotatingR = false;
+    else if (e.keyCode == 70) // F
+        headRotatingF = false;
     else if (e.keyCode == 37) // left arrow
         left = false;
     else if (e.keyCode == 39) // right arrow
