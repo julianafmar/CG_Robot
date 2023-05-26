@@ -492,7 +492,7 @@ function handleCollisions(){
 function update(){
     'use strict';
 
-    render();
+    checkCollisions();
 }
 
 /////////////
@@ -578,8 +578,6 @@ function render() {
         trailer.position.add(new THREE.Vector3(0.1, 0, 0));
     }
 
-    checkCollisions();
-
 }
 
 ////////////////////////////////
@@ -598,7 +596,7 @@ function init() {
     createScene();
     createCamera();
 
-    render();
+    update();
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onResize);
