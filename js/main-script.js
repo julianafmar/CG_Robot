@@ -123,7 +123,7 @@ function createMaterials(){
     //feet - 8
     materials.push(new THREE.MeshBasicMaterial({ color: 0xe1c4c4, wireframe: false }));
 
-    //thigh and trailer piece- 9
+    //thigh and trailer piece - 9
     materials.push(new THREE.MeshBasicMaterial({ color: 0x959595, wireframe: false }));
 
     //body and back - 10
@@ -195,6 +195,7 @@ function createEye(obj, x, y, z, isRight){
 
 function createBody(obj){
     'use strict';
+
     var body = new THREE.Object3D();
     body.name = 'body';
 
@@ -217,6 +218,7 @@ function createBody(obj){
 
 function createArm(obj, isRight){
     'use strict'
+
     var arm = new THREE.Object3D();
     arm.name = 'arm';
     
@@ -288,6 +290,7 @@ function createWaist(obj) {
 
 function createWheel(obj, x, y, z, isRight) {
     'use strict';
+
     geometry = new THREE.CylinderGeometry(wheelRadius, wheelRadius, wheelHeight, 32);
     geometry.rotateZ(Math.PI / 2);
     mesh = new THREE.Mesh(geometry, materials[7]);
@@ -298,6 +301,7 @@ function createWheel(obj, x, y, z, isRight) {
 
 function createLegs(obj, isRight){
     'use strict';
+
     var leg = new THREE.Object3D();
     var n = isRight ? -1 : 1;
 
@@ -325,6 +329,7 @@ function createLegs(obj, isRight){
 
 function createThigh(obj, x, y, z, isRight){
     'use strict'
+
     geometry = new THREE.BoxGeometry(thighLength, thighHeight, thighWidth);
     mesh = new THREE.Mesh(geometry, materials[9]);
     mesh.name = isRight ? 'right thigh': 'left thigh';
@@ -334,6 +339,7 @@ function createThigh(obj, x, y, z, isRight){
 
 function createLeg(obj, x, y, z, isRight){
     'use strict'
+
     geometry = new THREE.BoxGeometry(legLength, legHeight, legWidth);
     mesh = new THREE.Mesh(geometry, materials[4]);
     mesh.position.set(x, y, z);
@@ -343,6 +349,7 @@ function createLeg(obj, x, y, z, isRight){
 
 function createFoot(obj, x, y, z, isRight) { 
     'use strict';
+
     var foot = new THREE.Object3D();
     
     geometry = new THREE.BoxGeometry(footLength, footHeight, footWidth);
@@ -381,6 +388,8 @@ function createTrailer(x, y, z){
 }
 
 function createTrailerPiece (obj, x, y, z) {
+    'use strict';
+
     geometry = new THREE.CylinderGeometry(trailerPieceRadius, trailerPieceRadius, trailerPieceHeight, 32);
     geometry.rotateX(Math.PI / 2);
     mesh = new THREE.Mesh(geometry, materials[9]);
@@ -389,6 +398,8 @@ function createTrailerPiece (obj, x, y, z) {
 }
 
 function createBoundingBox(obj){
+    'use strict';
+
     let minX = Infinity;
     let minY = Infinity;
     let minZ = Infinity;
@@ -431,6 +442,8 @@ function createBoundingBox(obj){
 }
 
 function intersectsBox(box1, box2){
+    'use strict';
+
     const intersectX = box1.max.x > box2.min.x && box1.min.x < box2.max.x;
     const intersectY = box1.max.y > box2.min.y && box1.min.y < box2.max.y;
     const intersectZ = box1.max.z > box2.min.z && box1.min.z < box2.max.z;
@@ -466,6 +479,7 @@ function checkCollisions(){
 ///////////////////////
 function handleCollisions(){
     'use strict';
+    
     animation = true;
 
     var currentTime = Date.now();
@@ -597,8 +611,6 @@ function init() {
     createMaterials();
     createScene();
     createCamera();
-
-    render();
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onResize);
