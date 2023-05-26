@@ -492,18 +492,7 @@ function handleCollisions(){
 function update(){
     'use strict';
 
-    checkCollisions();
-}
-
-/////////////
-/* DISPLAY */
-/////////////
-function render() {
-    'use strict';
-
-    renderer.render(scene, cameras[activeCamera]);
-    
-    if (!collided) {
+    if (!collided && !animation) {
         if (feetRotatingQ && moves[3].rotation.x <= Math.PI && !feetRotatingA) {
             moves[3].rotation.x += moveSpeed;
             moves[5].rotation.x += moveSpeed;
@@ -578,6 +567,19 @@ function render() {
         trailer.position.add(new THREE.Vector3(0.1, 0, 0));
     }
 
+    checkCollisions();
+}
+
+/////////////
+/* DISPLAY */
+/////////////
+function render() {
+    'use strict';
+
+    renderer.render(scene, cameras[activeCamera]);
+
+    update();
+
 }
 
 ////////////////////////////////
@@ -596,7 +598,7 @@ function init() {
     createScene();
     createCamera();
 
-    update();
+    render();
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onResize);
